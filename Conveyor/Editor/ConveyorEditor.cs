@@ -12,7 +12,7 @@ namespace Primus.Conveyor
 
             Conveyor conveyor = (Conveyor) target;
 
-            if (GUILayout.Button("Update"))
+            if (GUILayout.Button("Deneme"))
             {
                 
             }
