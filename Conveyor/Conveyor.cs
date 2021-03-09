@@ -18,10 +18,11 @@ namespace Primus
         [SerializeField] bool _isLengthPrimary = true;
         [SerializeField] bool _doCreateBeltBelow = true;
         [SerializeField] float _velocityMultiplier = 1.0f;
-        [SerializeField] float _beltThickness = 0.1f;
+        [SerializeField] float _beltToDiameterRatio = 0.1f;
+        [SerializeField] private float _rollerWidthMultiplier = 1.0f;
         // Object for sourcing rotation, position and some size information
         [SerializeField] int _numberBeltTiles = 10;
-        [SerializeField] int _numberRollerTiles = 2;
+        [SerializeField] int _numberRollerTiles = 1;
         [SerializeField] Material _materialBeltUp;
         [SerializeField] Material _materialBeltSide;
         [SerializeField] Material _materialRoller;
@@ -30,6 +31,7 @@ namespace Primus
         float _diameter;
         float _length;
         float _tileLength;
+        float _beltThickness;
 
         Rigidbody _beltAboveUpBody;
         Rigidbody _beltAboveRightBody;
@@ -59,6 +61,9 @@ namespace Primus
 
         void Awake()
         {
+            // Cylinder wraps same tile twice, adjusting tile number accordingly.
+            _numberRollerTiles *= 2;
+
             if (_numberBeltTiles.Equals(0) || _numberRollerTiles.Equals(0))
             {
                 Debug.Log("Tile numbers for Belt and Roller cannot be zero");
@@ -89,6 +94,10 @@ namespace Primus
                 _tileLength = _diameter * Mathf.PI / _numberRollerTiles;
                 _length = _tileLength * _numberBeltTiles;
             }
+
+            // After _diameter is decided upon
+            _beltThickness = _beltToDiameterRatio * _diameter;
+
 
             _rollerEulerAnglePerTile = new Vector3(0, (360.0f / _numberRollerTiles), 0);
 
@@ -241,7 +250,7 @@ namespace Primus
             roller.transform.rotation = transform.rotation;
             roller.transform.localPosition =
                 new Vector3(-0, 0, (isFront ? 1.0f : -1.0f) * (_length - _diameter) / 2.0f);
-            roller.transform.localScale = new Vector3(_diameter, _width / 2.0f, _diameter);
+            roller.transform.localScale = new Vector3(_diameter, (_rollerWidthMultiplier * (_width / 2.0f)), _diameter);
 
             roller.AddComponent<Rigidbody>();
             rollerBody = roller.GetComponent<Rigidbody>();
@@ -253,6 +262,5 @@ namespace Primus
             // Make roller's y direction look transform.right
             roller.transform.localEulerAngles = new Vector3(0, 0, -90);
         }
-
     }
 }

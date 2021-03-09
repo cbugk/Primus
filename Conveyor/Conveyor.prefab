@@ -48,9 +48,10 @@ MonoBehaviour:
   _isLengthPrimary: 1
   _doCreateBeltBelow: 1
   _velocityMultiplier: 1
-  _beltThickness: 0.1
+  _beltToDiameterRatio: 0.1
+  _rollerWidthMultiplier: 1
   _numberBeltTiles: 10
-  _numberRollerTiles: 2
+  _numberRollerTiles: 1
   _materialBeltUp: {fileID: 2100000, guid: 0256b9c305693464e92ef55ccee0cece, type: 2}
   _materialBeltSide: {fileID: 2100000, guid: 0256b9c305693464e92ef55ccee0cece, type: 2}
   _materialRoller: {fileID: 2100000, guid: ddbd6892605eb454eacb03b84a9efefe, type: 2}
