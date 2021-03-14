@@ -3,24 +3,31 @@ using UnityEngine;
 using Quaternion = UnityEngine.Quaternion;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
+using Primus.PrefabRental;
 
 namespace Primus.Conveyor
 {
     [ExecuteInEditMode]
-//    [InitializeOnLoadAttribute]
-    public class Conveyor : MonoBehaviour
+    public class Conveyor : BaseProduct
     {
+        // Initial serial value for Receipt to be overriden.
+        private int _initialSerial = -1;
+
         [SerializeField] public float Width;
         [SerializeField] public float Diameter;
         [SerializeField] public float Length;
+
         // Kill switch (let's conveyor remember last set _velocityMultiplier)
-        [SerializeField] private bool _doRun = true;
+        [SerializeField] private bool _doRun;
+
         // Length and diameter are calculated in terms of one another (and tile numbers)
         [SerializeField] private bool _isLengthPrimary = true;
         [SerializeField] private bool _doCreateBeltBelow = true;
         [SerializeField] private float _velocityMultiplier = 1.0f;
         [SerializeField] private float _beltToDiameterRatio = 0.1f;
+
         [SerializeField] private float _rollerWidthMultiplier = 1.0f;
+
         // Object for sourcing rotation, position and some size information
         [SerializeField] private int _numberBeltTiles = 10;
         [SerializeField] private int _numberRollerTiles = 1;
@@ -81,6 +88,9 @@ namespace Primus.Conveyor
 
         private void Awake()
         {
+            // BaseProduct related enumeration, Default (0) otherwise.
+            //ProductId = (int) Product.Conveyor;
+
             CalculateVariables();
             SetParts();
             UpdateState();
@@ -129,15 +139,19 @@ namespace Primus.Conveyor
 
         private void SetParts()
         {
-            SetBeltPart(_beltAboveLeft, out _beltBodyAboveLeft, out _beltRendererAboveLeft, out _beltTransformAboveLeft);
+            SetBeltPart(_beltAboveLeft, out _beltBodyAboveLeft, out _beltRendererAboveLeft,
+                out _beltTransformAboveLeft);
             SetBeltPart(_beltAboveUp, out _beltBodyAboveUp, out _beltRendererAboveUp, out _beltTransformAboveUp);
-            SetBeltPart(_beltAboveRight, out _beltBodyAboveRight, out _beltRendererAboveRight, out _beltTransformAboveRight);
-            
+            SetBeltPart(_beltAboveRight, out _beltBodyAboveRight, out _beltRendererAboveRight,
+                out _beltTransformAboveRight);
+
             if (_doCreateBeltBelow)
             {
-                SetBeltPart(_beltBelowLeft, out _beltBodyBelowLeft, out _beltRendererBelowLeft, out _beltTransformBelowLeft);
+                SetBeltPart(_beltBelowLeft, out _beltBodyBelowLeft, out _beltRendererBelowLeft,
+                    out _beltTransformBelowLeft);
                 SetBeltPart(_beltBelowUp, out _beltBodyBelowUp, out _beltRendererBelowUp, out _beltTransformBelowUp);
-                SetBeltPart(_beltBelowRight, out _beltBodyBelowRight, out _beltRendererBelowRight, out _beltTransformBelowRight);
+                SetBeltPart(_beltBelowRight, out _beltBodyBelowRight, out _beltRendererBelowRight,
+                    out _beltTransformBelowRight);
             }
 
             SetRoller(_rollerFront, out _rollerBodyFront, out _rollerRendererFront, out _rollerTransformFront);
@@ -145,7 +159,8 @@ namespace Primus.Conveyor
             SetRoller(_rollerHind, out _rollerBodyHind, out _rollerRendererHind, out _rollerTransformHind);
         }
 
-        private void SetBeltPart(in GameObject beltPart, out Rigidbody beltBody, out Renderer beltRenderer, out Transform beltTransform)
+        private void SetBeltPart(in GameObject beltPart, out Rigidbody beltBody, out Renderer beltRenderer,
+            out Transform beltTransform)
         {
             beltBody = beltPart.GetComponent<Rigidbody>();
             beltBody.isKinematic = true;
@@ -155,7 +170,8 @@ namespace Primus.Conveyor
             beltTransform = beltPart.transform;
         }
 
-        private void SetRoller(in GameObject roller, out Rigidbody rollerBody, out Renderer rollerRenderer, out Transform rollerTransform)
+        private void SetRoller(in GameObject roller, out Rigidbody rollerBody, out Renderer rollerRenderer,
+            out Transform rollerTransform)
         {
             rollerBody = roller.GetComponent<Rigidbody>();
             rollerBody.isKinematic = true;
@@ -184,15 +200,16 @@ namespace Primus.Conveyor
             }
 
             UpdateRollerState(true, _rollerRendererFront, _rollerTransformFront);
-            
+
             UpdateRollerState(false, _rollerRendererHind, _rollerTransformHind);
-            }
+        }
 
         private void UpdateBeltState(int partNumber, Renderer beltRenderer, Transform beltTransform)
         {
             if (beltRenderer == null || beltTransform == null)
-            { 
-                return; ;
+            {
+                return;
+                ;
             }
 
             switch (partNumber)
@@ -254,6 +271,7 @@ namespace Primus.Conveyor
             {
                 return;
             }
+
             rollerTransform.localPosition =
                 new Vector3(-0, 0, (isFront ? 1.0f : -1.0f) * (_length - _diameter) / 2.0f);
             rollerTransform.localScale = new Vector3(_diameter, (_rollerWidthMultiplier * (_width / 2.0f)), _diameter);
