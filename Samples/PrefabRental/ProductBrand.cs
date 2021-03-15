@@ -1,8 +1,7 @@
-﻿
-namespace Primus.PrefabRental.Sample
+﻿namespace Primus.Sample.PrefabRental
 {
     [System.Serializable]
-    public enum Product : int
+    public enum ProductBrand : int
     {
         Default = 0,
         Cube,

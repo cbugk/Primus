@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7412501995025492455}
-  - component: {fileID: 7412501995025492454}
+  - component: {fileID: 36166156607718803}
   m_Layer: 0
   m_Name: Retailer
   m_TagString: Untagged
@@ -34,7 +34,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7412501995025492454
+--- !u!114 &36166156607718803
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -43,13 +43,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 7412501995025492449}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 34e1b9f3bb6c6484db2c0c2e96c05a6d, type: 3}
+  m_Script: {fileID: 11500000, guid: aa2f96079298eda43abcb2c7a9b5a1ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _catalog:
-  - {fileID: 2249824500446878680, guid: 4bc218234150c65468d4ba65ab47c7a3, type: 3}
-  - {fileID: 1625969504638388757, guid: a986b89faab4be8429c20d18ac87d4b8, type: 3}
-  - {fileID: 2112410685587871127, guid: b2c86b5cd0a952443a9277db438045b5, type: 3}
 --- !u!1001 &1796300674082432662
 PrefabInstance:
   m_ObjectHideFlags: 0

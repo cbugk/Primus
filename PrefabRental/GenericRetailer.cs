@@ -6,31 +6,31 @@ using UnityEngine;
 
 namespace Primus.PrefabRental
 {
-    public class Retailer : GenericSingleton<Retailer>
+    public abstract class GenericRetailer<TEnum> : GenericSingleton<GenericRetailer<TEnum>> where TEnum : Enum
     {
-        [SerializeField] private BaseProduct[] _catalog;
+        [SerializeField] protected GenericBaseProduct<TEnum>[] ProductCatalog;
         private int _catalogCount;
-        private int[] _idCatalog;
-        private Stock[] _stockCatalog;
+        private TEnum[] _brandCatalog;
+        //protected Stock[] _stockCatalog;
 
-        protected void Start()
+        protected virtual void Start()
         {
             // Initialize fields/properties
-            _catalogCount = _catalog.Length;
-            _idCatalog = null;
+            _catalogCount = ProductCatalog.Length;
+            _brandCatalog = null;
 
-            // Unless _catalog is ordered illegally, _idCatalog is set
+            // Unless _productCatalog is ordered illegally, _brandCatalog is set
             ValidateCatalog();
         }
 
-        public GameObject GetProduct(int id)
+        public GameObject GetProduct(TEnum brand)
         {
-            if (_idCatalog != null)
+            if (_brandCatalog != null)
             {
-                int typeIndex = Array.BinarySearch(_idCatalog, id);
+                int typeIndex = Array.BinarySearch(_brandCatalog, brand);
                 if (0 <= typeIndex)
                 {
-                    return GameObject.Instantiate(_catalog[typeIndex].gameObject);
+                    return GameObject.Instantiate(ProductCatalog[typeIndex].gameObject);
                 }
                 else
                 {
@@ -53,31 +53,31 @@ namespace Primus.PrefabRental
             }
             else
             {
-                _idCatalog = new int[_catalogCount];
+                _brandCatalog = new TEnum[_catalogCount];
 
-                if (_catalog[0] == null)
+                if (ProductCatalog[0] == null)
                 {
                     throw new Exception("Null product in Retailer Catalog. Index: 0");
                 }
                 else
                 {
-                    _idCatalog[0] = _catalog[0].ProductId;
+                    _brandCatalog[0] = ProductCatalog[0].Brand;
                 }
 
                 for (int index = 1; index < _catalogCount; index++)
                 {
-                    if (_catalog[index] == null)
+                    if (ProductCatalog[index] == null)
                     {
                         throw new Exception($"Null product in Retailer Catalog. Index: {index}");
                     }
                     else
                     {
-                        int idCache = _catalog[index].ProductId;
+                        TEnum brandCache = ProductCatalog[index].Brand;
 
                         // Ensure types are unique while keeping search is cheap later on (strictly ascending order)
-                        if (_idCatalog[index - 1] < idCache)
+                        if (_brandCatalog[index - 1].CompareTo(brandCache) < 0)
                         {
-                            _idCatalog[index] = idCache;
+                            _brandCatalog[index] = brandCache;
                         }
                         else
                         {

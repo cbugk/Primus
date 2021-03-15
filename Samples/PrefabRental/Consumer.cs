@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Primus.PrefabRental;
 using UnityEngine;
 
-namespace Primus.PrefabRental.Sample
+namespace Primus.Sample.PrefabRental
 {
     public class Consumer : MonoBehaviour
     {
@@ -15,22 +16,25 @@ namespace Primus.PrefabRental.Sample
 
         private void Update()
         {
-            if (_frameCount > 20)
+            if (_frameCount > 19)
             {
                 return;
             }
 
-            GameObject myNewObject = Retailer.Instance.GetProduct((int)Product.Cylinder);
+            GameObject myNewObject = Retailer.Instance.GetProduct(ProductBrand.Cylinder);
             if (myNewObject != null)
             {
                 myNewObject.transform.SetParent(transform);
                 myNewObject.transform.localPosition = Vector3.zero;
                 myNewObject.transform.Translate(Vector3.one * _frameCount);
 
-                CylinderProduct myNewCube = myNewObject.GetComponent<CylinderProduct>();
-                if (_frameCount % 2 == 0)
+                CylinderProduct myNewCylinder = myNewObject.GetComponent<CylinderProduct>();
+                if (myNewCylinder != null)
                 {
-                    myNewCube.IsSpinning = true;
+                    if (_frameCount % 2 == 0)
+                    {
+                        myNewCylinder.IsSpinning = true;
+                    }
                 }
             }
 

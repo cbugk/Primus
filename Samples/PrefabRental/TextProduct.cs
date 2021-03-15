@@ -1,19 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Primus.PrefabRental;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 
-namespace Primus.PrefabRental.Sample
+namespace Primus.Sample.PrefabRental
 {
-    public class TextProduct : BaseProduct
+    public class TextProduct : GenericBaseProduct<ProductBrand>
     {
-        [SerializeField] private Product _type;
         public bool IsSpinning { get; set; }
 
         private void Awake()
         {
+            Brand = ProductBrand.Text;
             IsSpinning = false;
-            ProductId = (int) _type;
         }
 
         private void Update()

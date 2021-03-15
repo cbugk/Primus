@@ -5,18 +5,16 @@ using UnityEngine;
 using UnityEngine.PlayerLoop;
 using Primus.PrefabRental;
 
-namespace Primus.PrefabRental.Sample
+namespace Primus.Sample.PrefabRental
 {
-    public class CubeProduct : BaseProduct
+    public class CubeProduct : GenericBaseProduct<ProductBrand>
     {
-        [SerializeField] private Product _type;
-        
         public bool IsSpinning { get; set; }
 
         private void Awake()
         {
+            Brand = ProductBrand.Cube;
             IsSpinning = false;
-            ProductId = (int) _type;
         }
 
         private void Update()

@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
 using Quaternion = UnityEngine.Quaternion;
 using Vector2 = UnityEngine.Vector2;
@@ -8,17 +9,14 @@ using Primus.PrefabRental;
 namespace Primus.Conveyor
 {
     [ExecuteInEditMode]
-    public class Conveyor : BaseProduct
+    public abstract class GenericConveyor<TEnum> : GenericBaseProduct<TEnum> where TEnum : Enum
     {
-        // Initial serial value for Receipt to be overriden.
-        private int _initialSerial = -1;
-
-        [SerializeField] public float Width;
-        [SerializeField] public float Diameter;
-        [SerializeField] public float Length;
+        public float Width;
+        public float Diameter;
+        public float Length;
 
         // Kill switch (let's conveyor remember last set _velocityMultiplier)
-        [SerializeField] private bool _doRun;
+        [SerializeField] private bool _doRun = false;
 
         // Length and diameter are calculated in terms of one another (and tile numbers)
         [SerializeField] private bool _isLengthPrimary = true;
@@ -86,26 +84,29 @@ namespace Primus.Conveyor
         private float _accumulatedOffset = 0.0f;
         private Vector2 _beltMaterialOffset = new Vector2(0.0f, 0.0f);
 
-        private void Awake()
+        protected virtual void Awake()
         {
-            // BaseProduct related enumeration, Default (0) otherwise.
-            //ProductId = (int) Product.Conveyor;
-
             CalculateVariables();
             SetParts();
             UpdateState();
         }
 
         // Governing surface and physics
-        private void FixedUpdate()
+        protected virtual void FixedUpdate()
         {
             CalculateVariables();
             UpdateState();
             FixedUpdatePhysicsAndRendering();
         }
 
+        protected virtual void OnValidate()
+        {
+            CalculateVariables();
+            UpdateState();
+        }
+
         // Calculates values whenever a change is made
-        private void CalculateVariables()
+        protected void CalculateVariables()
         {
             // Cylinder wraps same tile twice, adjusting tile number accordingly.
             _numberRollerTilesTwice = _numberRollerTiles * 2;
@@ -137,7 +138,7 @@ namespace Primus.Conveyor
             _rollerEulerAnglePerTile = new Vector3(0, (360.0f / _numberRollerTilesTwice), 0);
         }
 
-        private void SetParts()
+        protected void SetParts()
         {
             SetBeltPart(_beltAboveLeft, out _beltBodyAboveLeft, out _beltRendererAboveLeft,
                 out _beltTransformAboveLeft);
@@ -159,7 +160,7 @@ namespace Primus.Conveyor
             SetRoller(_rollerHind, out _rollerBodyHind, out _rollerRendererHind, out _rollerTransformHind);
         }
 
-        private void SetBeltPart(in GameObject beltPart, out Rigidbody beltBody, out Renderer beltRenderer,
+        protected void SetBeltPart(in GameObject beltPart, out Rigidbody beltBody, out Renderer beltRenderer,
             out Transform beltTransform)
         {
             beltBody = beltPart.GetComponent<Rigidbody>();
@@ -170,7 +171,7 @@ namespace Primus.Conveyor
             beltTransform = beltPart.transform;
         }
 
-        private void SetRoller(in GameObject roller, out Rigidbody rollerBody, out Renderer rollerRenderer,
+        protected void SetRoller(in GameObject roller, out Rigidbody rollerBody, out Renderer rollerRenderer,
             out Transform rollerTransform)
         {
             rollerBody = roller.GetComponent<Rigidbody>();
@@ -186,7 +187,7 @@ namespace Primus.Conveyor
             rollerTransform.localEulerAngles = new Vector3(0, 0, -90);
         }
 
-        private void UpdateState()
+        protected void UpdateState()
         {
             UpdateBeltState(1, _beltRendererAboveLeft, _beltTransformAboveLeft);
             UpdateBeltState(2, _beltRendererAboveUp, _beltTransformAboveUp);
@@ -204,7 +205,7 @@ namespace Primus.Conveyor
             UpdateRollerState(false, _rollerRendererHind, _rollerTransformHind);
         }
 
-        private void UpdateBeltState(int partNumber, Renderer beltRenderer, Transform beltTransform)
+        protected void UpdateBeltState(int partNumber, Renderer beltRenderer, Transform beltTransform)
         {
             if (beltRenderer == null || beltTransform == null)
             {
@@ -265,7 +266,7 @@ namespace Primus.Conveyor
             }
         }
 
-        private void UpdateRollerState(bool isFront, Renderer rollerRenderer, Transform rollerTransform)
+        protected void UpdateRollerState(bool isFront, Renderer rollerRenderer, Transform rollerTransform)
         {
             if (rollerRenderer == null || rollerTransform == null)
             {
@@ -279,7 +280,7 @@ namespace Primus.Conveyor
             rollerRenderer.material = _materialRoller;
         }
 
-        private void FixedUpdatePhysicsAndRendering()
+        protected void FixedUpdatePhysicsAndRendering()
         {
             if (!_doRun)
             {
@@ -330,12 +331,6 @@ namespace Primus.Conveyor
                 _beltRendererBelowRight.material.mainTextureOffset = _beltMaterialOffset;
                 _beltRendererBelowLeft.material.mainTextureOffset = _beltMaterialOffset;
             }
-        }
-
-        private void OnValidate()
-        {
-            CalculateVariables();
-            UpdateState();
         }
     }
 }
