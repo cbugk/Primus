@@ -6,3 +6,5 @@ Usage:
         public class SampleSingleton : GenericSingleton<SampleSingleton>
         {
         }
+
+Note that use of singleton is better suited for composition than inheritance, although the latter is as much possible.
