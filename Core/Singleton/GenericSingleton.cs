@@ -4,7 +4,7 @@ namespace Primus.Core
 {
     public class GenericSingleton<T> : MonoBehaviour where T : Component
     {
-        private static T _instance;
+        [SerializeField] private static T _instance;
 
         public static T Instance
         {
@@ -15,7 +15,7 @@ namespace Primus.Core
                     _instance = FindObjectOfType<T>();
                     if (_instance == null)
                     {
-                        GameObject obj = new GameObject {name = typeof(T).Name};
+                        GameObject obj = new GameObject { name = typeof(T).Name };
                         _instance = obj.AddComponent<T>();
                     }
                 }

@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1025053909405640343
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1025053909405640341}
+  - component: {fileID: 1025053909405640340}
+  m_Layer: 0
+  m_Name: SampleBibliotheca
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1025053909405640341
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1025053909405640343}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1025053909405640340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1025053909405640343}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa2f96079298eda43abcb2c7a9b5a1ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Inventory:
+  - <Title>k__BackingField: 1
+    <Biblion>k__BackingField: {fileID: 2249824500446878680, guid: 4bc218234150c65468d4ba65ab47c7a3, type: 3}
+    <BatchSize>k__BackingField: 1
+  - <Title>k__BackingField: 2
+    <Biblion>k__BackingField: {fileID: 2112410685587871127, guid: b2c86b5cd0a952443a9277db438045b5, type: 3}
+    <BatchSize>k__BackingField: 1
