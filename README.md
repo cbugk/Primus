@@ -19,7 +19,7 @@ Implementations of fundemental concepts, i.e. building blocks. GenericSingleton 
 ### Primus.Extra
 Reserved for non-fundemental yet useful scripts, which are neither prefabs. (Might be depreceated or repurposed).
 ### Primus.Biblion
-For cataloguing generic [Biblion](./Core/Bibliotheca/Bibliotheca.md) scripts, their respective BiblionPrefabs are stored under Primus.Samples namespace.
+For cataloguing generic [Biblion](./Core/Bibliotheca/README.md/##Biblion) scripts, their respective BiblionPrefabs are stored under Primus.Samples namespace.
 ### Primus.Sample
 Where working demonstrative code and BiblionPrefabs are stored. BiblionPrefabs need to be duplicated into original prefabs and their scripts replaced with one's in-game scripts in a similar fashion to the provided sample.
 
