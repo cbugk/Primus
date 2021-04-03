@@ -16,11 +16,11 @@ For every prefab catalogued, there need be a sample to simplify documentation, t
 
 ### Primus.Core
 Implementations of fundemental concepts, i.e. building blocks. GenericSingleton class, and Bibliotheca (object pooling) are few examples implemeted.
-### Primus.Extra
-Reserved for non-fundemental yet useful scripts, which are neither prefabs. (Might be depreceated or repurposed).
 ### Primus.Biblion
 For cataloguing generic [Biblion](./Core/Bibliotheca/README.md/##Biblion) scripts, their respective BiblionPrefabs are stored under Primus.Samples namespace.
 ### Primus.Sample
 Where working demonstrative code and BiblionPrefabs are stored. BiblionPrefabs need to be duplicated into original prefabs and their scripts replaced with one's in-game scripts in a similar fashion to the provided sample.
+### Primus.ModTool
+Where modding-related tools are stored. Here too, generic base implementations from which per game adaptations are made are the main focus.
 
 See subfolders for more detail.

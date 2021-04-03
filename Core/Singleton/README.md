@@ -3,7 +3,7 @@ Generic Singleton implementation taken from [this blog](http://www.unitygeek.com
 
 Usage:
 
-        public class SampleSingleton : GenericSingleton<SampleSingleton>
+        public class SampleSingleton : GenericMonoSingleton<SampleSingleton>
         {
         }
 

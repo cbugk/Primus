@@ -1,0 +1,17 @@
+{
+    "name": "Primus",
+    "rootNamespace": "",
+    "references": [
+        "GUID:70f1a2d37dbe31e44a01b1c64862362b",
+        "GUID:6e67777273ba9cc4babf87d6ef3ac5a7"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
