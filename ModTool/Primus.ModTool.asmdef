@@ -1,8 +1,9 @@
 {
-    "name": "Primus.Core",
-    "rootNamespace": "Primus.Core",
+    "name": "Primus.ModTool",
+    "rootNamespace": "Primus.ModTool",
     "references": [
-        "GUID:75469ad4d38634e559750d17036d5f7c"
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:70f1a2d37dbe31e44a01b1c64862362b"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
