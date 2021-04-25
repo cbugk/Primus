@@ -1,5 +1,5 @@
 {
-    "name": "PrimusInput",
+    "name": "BeaconEditorInput",
     "maps": [
         {
             "name": "Beacon",
@@ -199,17 +199,6 @@
                 },
                 {
                     "name": "",
-                    "id": "4017370a-e5d5-4475-b2d1-e0ebdc68e7e1",
-                    "path": "<Mouse>/scroll/y",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Zoom",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "c365a32b-b5c6-41cc-af04-922065d883eb",
                     "path": "<Mouse>/delta",
                     "interactions": "",
@@ -229,6 +218,39 @@
                     "action": "MoveLock",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "Button With One Modifier",
+                    "id": "63c244c4-5fc4-48a7-980c-891d2a3c7f40",
+                    "path": "ButtonWithOneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Zoom",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "eb16d064-ba94-47d8-bdf5-41cbc120cbfc",
+                    "path": "<Keyboard>/alt",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Zoom",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "button",
+                    "id": "14823c58-cc37-43f8-aced-d1b8dd580597",
+                    "path": "<Mouse>/scroll/y",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Zoom",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 }
             ]
         },

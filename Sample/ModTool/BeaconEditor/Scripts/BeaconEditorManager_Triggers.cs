@@ -20,89 +20,135 @@ namespace Primus.Sample.ModTool.BeaconEditor
         }
         private void OnEnable()
         {
-            _primusInput.BeaconEditorManager.ToggleActive.Enable();
-            _primusInput.BeaconEditorManager.ToggleActive.performed += ToggleActive;
+            _beaconEditorInput.BeaconEditorManager.ToggleActive.Enable();
+            _beaconEditorInput.BeaconEditorManager.ToggleActive.performed += ToggleActive;
 
-            _primusInput.Beacon.Delete.Enable();
-            _primusInput.Beacon.Delete.performed += DeleteSelectedBeacon;
+            _beaconEditorInput.Beacon.Delete.Enable();
+            _beaconEditorInput.Beacon.Delete.performed += OnBeaconDelete;
 
-            _primusInput.CameraManager.SwitchToModCam.Enable();
-            _primusInput.CameraManager.SwitchToModCam.performed += SwitchCam;
+            _beaconEditorInput.CameraManager.SwitchToModCam.Enable();
+            _beaconEditorInput.CameraManager.SwitchToModCam.performed += OnCameraManagerSwitch;
 
-            _primusInput.Beacon.UnlockAdd.Enable();
-            _primusInput.Beacon.UnlockAdd.started += ctx => _canAddBeacon = true;
-            _primusInput.Beacon.UnlockAdd.canceled += ctx => _canAddBeacon = false;
+            _beaconEditorInput.Beacon.UnlockAdd.Enable();
+            _beaconEditorInput.Beacon.UnlockAdd.started += ctx => _canAddBeacon = true;
+            _beaconEditorInput.Beacon.UnlockAdd.canceled += ctx => _canAddBeacon = false;
 
-            _primusInput.Beacon.Add.Enable();
-            _primusInput.Beacon.Add.started += AddBeacon;
+            _beaconEditorInput.Beacon.Add.Enable();
+            _beaconEditorInput.Beacon.Add.started += OnBeaconAdd;
 
-            _primusInput.Beacon.MoveLock.Enable();
-            _primusInput.Beacon.MoveLock.started += ctx => _canSelectedBeaconMove = true;
-            _primusInput.Beacon.MoveLock.canceled += ctx => _canSelectedBeaconMove = false;
+            _beaconEditorInput.Beacon.MoveLock.Enable();
+            _beaconEditorInput.Beacon.MoveLock.started += ctx => _canSelectedBeaconMove = true;
+            _beaconEditorInput.Beacon.MoveLock.canceled += ctx => _canSelectedBeaconMove = false;
 
             // Beacon.Select must reside upon Canvas.UpdatePanelBeaconSelection
             // for update to take place immenently rather than in next click.
-            _primusInput.Beacon.Select.Enable();
-            _primusInput.Beacon.Select.started += SelectBeacon;
+            _beaconEditorInput.Beacon.Select.Enable();
+            _beaconEditorInput.Beacon.Select.started += OnBeaconSelect;
             // Do not seperate block.
-            _primusInput.CanvasManager.UpdatePanelBeaconSelection.Enable();
-            _primusInput.CanvasManager.UpdatePanelBeaconSelection.performed += UpdateSelectedBeaconPanel;
+            _beaconEditorInput.CanvasManager.UpdatePanelBeaconSelection.Enable();
+            _beaconEditorInput.CanvasManager.UpdatePanelBeaconSelection.performed += OnUpdatePanelBeaconSelection;
 
-            _primusInput.CanvasManager.ToggleEscMenu.Enable();
-            _primusInput.CanvasManager.ToggleEscMenu.performed += ToggleEscMenu;
+            _beaconEditorInput.CanvasManager.ToggleEscMenu.Enable();
+            _beaconEditorInput.CanvasManager.ToggleEscMenu.performed += OnToggleEscMenu;
 
-            _primusInput.CameraManager.Zoom.Enable();
-            _primusInput.CameraManager.Zoom.performed += ZoomCameraLinear;
+            _beaconEditorInput.CameraManager.Zoom.Enable();
+            _beaconEditorInput.CameraManager.Zoom.performed += OnCameraManagerZoom;
 
-            _primusInput.CameraManager.MoveLock.Enable();
-            _primusInput.CameraManager.MoveLock.performed += ctx => _canCameraMove = true;
-            _primusInput.CameraManager.MoveLock.canceled += ctx => _canCameraMove = false;
+            _beaconEditorInput.CameraManager.MoveLock.Enable();
+            _beaconEditorInput.CameraManager.MoveLock.performed += ctx => _canCameraMove = true;
+            _beaconEditorInput.CameraManager.MoveLock.canceled += ctx => _canCameraMove = false;
 
-            _primusInput.CameraManager.Move.Enable();
-            _primusInput.CameraManager.Move.performed += MoveCamera;
+            _beaconEditorInput.CameraManager.Move.Enable();
+            _beaconEditorInput.CameraManager.Move.performed += OnCameraManagerMove;
         }
 
         private void OnDisable()
         {
-            _primusInput.BeaconEditorManager.ToggleActive.Disable();
-            _primusInput.BeaconEditorManager.ToggleActive.performed -= ToggleActive;
+            _beaconEditorInput.BeaconEditorManager.ToggleActive.Disable();
+            _beaconEditorInput.BeaconEditorManager.ToggleActive.performed -= ToggleActive;
 
-            _primusInput.Beacon.Delete.Disable();
-            _primusInput.Beacon.Delete.performed -= DeleteSelectedBeacon;
+            _beaconEditorInput.Beacon.Delete.Disable();
+            _beaconEditorInput.Beacon.Delete.performed -= OnBeaconDelete;
 
-            _primusInput.Beacon.UnlockAdd.Disable();
-            _primusInput.Beacon.UnlockAdd.started -= ctx => _canAddBeacon = true;
-            _primusInput.Beacon.UnlockAdd.canceled -= ctx => _canAddBeacon = false;
+            _beaconEditorInput.Beacon.UnlockAdd.Disable();
+            _beaconEditorInput.Beacon.UnlockAdd.started -= ctx => _canAddBeacon = true;
+            _beaconEditorInput.Beacon.UnlockAdd.canceled -= ctx => _canAddBeacon = false;
 
-            _primusInput.Beacon.Add.Disable();
-            _primusInput.Beacon.Add.started -= AddBeacon;
+            _beaconEditorInput.Beacon.Add.Disable();
+            _beaconEditorInput.Beacon.Add.started -= OnBeaconAdd;
 
-            _primusInput.Beacon.MoveLock.Disable();
-            _primusInput.Beacon.MoveLock.started -= ctx => _canSelectedBeaconMove = true;
-            _primusInput.Beacon.MoveLock.canceled -= ctx => _canSelectedBeaconMove = false;
+            _beaconEditorInput.Beacon.MoveLock.Disable();
+            _beaconEditorInput.Beacon.MoveLock.started -= ctx => _canSelectedBeaconMove = true;
+            _beaconEditorInput.Beacon.MoveLock.canceled -= ctx => _canSelectedBeaconMove = false;
 
             // See comment at Enable counterpart.
-            _primusInput.Beacon.Select.Disable();
-            _primusInput.Beacon.Select.started -= SelectBeacon;
+            _beaconEditorInput.Beacon.Select.Disable();
+            _beaconEditorInput.Beacon.Select.started -= OnBeaconSelect;
             // Do not seperate block.
-            _primusInput.CanvasManager.UpdatePanelBeaconSelection.Disable();
-            _primusInput.CanvasManager.UpdatePanelBeaconSelection.performed -= UpdateSelectedBeaconPanel;
+            _beaconEditorInput.CanvasManager.UpdatePanelBeaconSelection.Disable();
+            _beaconEditorInput.CanvasManager.UpdatePanelBeaconSelection.performed -= OnUpdatePanelBeaconSelection;
 
-            _primusInput.CanvasManager.ToggleEscMenu.Disable();
-            _primusInput.CanvasManager.ToggleEscMenu.performed -= ToggleEscMenu;
+            _beaconEditorInput.CanvasManager.ToggleEscMenu.Disable();
+            _beaconEditorInput.CanvasManager.ToggleEscMenu.performed -= OnToggleEscMenu;
 
-            _primusInput.CameraManager.SwitchToModCam.Disable();
-            _primusInput.CameraManager.SwitchToModCam.performed -= SwitchCam;
+            _beaconEditorInput.CameraManager.SwitchToModCam.Disable();
+            _beaconEditorInput.CameraManager.SwitchToModCam.performed -= OnCameraManagerSwitch;
 
-            _primusInput.CameraManager.Zoom.Disable();
-            _primusInput.CameraManager.Zoom.performed -= ZoomCameraLinear;
+            _beaconEditorInput.CameraManager.Zoom.Disable();
+            _beaconEditorInput.CameraManager.Zoom.performed -= OnCameraManagerZoom;
 
-            _primusInput.CameraManager.MoveLock.Disable();
-            _primusInput.CameraManager.MoveLock.performed -= ctx => _canCameraMove = true;
-            _primusInput.CameraManager.MoveLock.canceled -= ctx => _canCameraMove = false;
+            _beaconEditorInput.CameraManager.MoveLock.Disable();
+            _beaconEditorInput.CameraManager.MoveLock.performed -= ctx => _canCameraMove = true;
+            _beaconEditorInput.CameraManager.MoveLock.canceled -= ctx => _canCameraMove = false;
 
-            _primusInput.CameraManager.Move.Disable();
-            _primusInput.CameraManager.Move.performed -= MoveCamera;
+            _beaconEditorInput.CameraManager.Move.Disable();
+            _beaconEditorInput.CameraManager.Move.performed -= OnCameraManagerMove;
+        }
+
+        private void OnBeaconSelect(InputAction.CallbackContext context)
+        {
+            SelectBeacon();
+        }
+
+        private void OnUpdatePanelBeaconSelection(InputAction.CallbackContext context)
+        {
+            UpdateSelectedBeaconPanel();
+        }
+
+        private void OnBeaconDelete(InputAction.CallbackContext context)
+        {
+            DeleteSelectedBeacon();
+        }
+
+        private void OnBeaconAdd(InputAction.CallbackContext context)
+        {
+            AddBeacon();
+        }
+
+        private void OnToggleEscMenu(InputAction.CallbackContext context)
+        {
+            ToggleEscMenu();
+        }
+
+        protected void ToggleActive(InputAction.CallbackContext context)
+        {
+            _areFunctionalitiesActive = !_areFunctionalitiesActive;
+        }
+
+        private void OnCameraManagerSwitch(InputAction.CallbackContext context)
+        {
+            SwitchCamera();
+        }
+
+        private void OnCameraManagerMove(InputAction.CallbackContext context)
+        {
+            MoveCamera(context.ReadValue<Vector2>());
+        }
+
+        private void OnCameraManagerZoom(InputAction.CallbackContext context)
+        {
+            // Returns multiples of positive/negative 120.0f
+            ZoomCameraLinear(context.ReadValue<float>());
         }
     }
 }

@@ -31,7 +31,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
 
 
         // Private, and Protected //
-        private PrimusInput _primusInput;
+        private BeaconEditorInput _beaconEditorInput;
         protected bool _areFunctionalitiesActive;
         private bool _isMainCameraActive;
         private bool _canCameraMove;
@@ -63,10 +63,10 @@ namespace Primus.Sample.ModTool.BeaconEditor
             _areFunctionalitiesActive = false;
             _canCameraMove = false;
             _canSelectedBeaconMove = false;
-            _primusInput = new PrimusInput();
+            _beaconEditorInput = new BeaconEditorInput();
 
             //Instantiate NonSerialized Functionalities
-            _mouseToWorldPosition = new MouseToWorldPosition(_primusInput);
+            _mouseToWorldPosition = new MouseToWorldPosition();
             if (_cameraManager != null)
             {
                 _cameraManager.ManualAwake();
@@ -88,44 +88,25 @@ namespace Primus.Sample.ModTool.BeaconEditor
             DragSelectedBeacon();
         }
 
-        protected void ToggleActive(InputAction.CallbackContext context)
-        {
-            _areFunctionalitiesActive = !_areFunctionalitiesActive;
-        }
-
-        private void SwitchCam(InputAction.CallbackContext context)
+        private void SwitchCamera()
         {
             // Always switches to other than active camera
             _cameraManager.SwitchTo(1);
             _mouseToWorldPosition.ActiveCamera = _cameraManager.ActiveCamera;
-
         }
 
-        private void MoveCamera(InputAction.CallbackContext context)
+        private void MoveCamera(Vector2 delta)
         {
             if (!_canCameraMove)
             {
                 return;
             }
 
-            Vector2 moveCache = context.ReadValue<Vector2>() * _moveMultiplier;
+            Vector2 moveCache = delta * _moveMultiplier;
             _cameraManager.Move(moveCache.x, moveCache.y);
         }
 
-        private void ZoomCameraLinear(InputAction.CallbackContext context)
-        {
-            // Returns positive/negative multiples of 120.0f
-            float contextValue = context.ReadValue<float>();
 
-            if (_cameraManager.ActiveCamera.orthographic)
-            {
-                _cameraManager.ZoomLinearOrthographic(contextValue * _zoomMultiplierOrthographic, 200, 4000);
-            }
-            else
-            {
-                _cameraManager.ZoomLinearPerspective(contextValue * _zoomMultiplierPerspective, 0, 400000);
-            }
-        }
 
         private GameObject FindNearestBeaconWithinRadiusAtPosition(float radius, Vector3 position, GameObject exceptBeaconInstance = null)
         {
@@ -170,7 +151,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
             }
         }
 
-        private void SelectBeacon(InputAction.CallbackContext context)
+        private void SelectBeacon()
         {
             Vector3 coordinates = _mouseToWorldPosition.GetCoordinates();
             // If there was no hit
@@ -178,14 +159,18 @@ namespace Primus.Sample.ModTool.BeaconEditor
             _selectedBeaconInstance = FindNearestBeaconWithinRadiusAtPosition(_neighborBeaconDistanceLowerLimit / 2.0f + _neighborBeaconDistanceEpsilon, coordinates);
         }
 
-        private void DeleteSelectedBeacon(InputAction.CallbackContext context)
+        private void DeleteSelectedBeacon()
         {
-            BeaconInstances.Remove(_selectedBeaconInstance);
-            Bibliotheca.CheckIn(_selectedBeaconInstance.GetComponent<BaseBeacon>());
-            _selectedBeaconInstance = null;
+            if (_selectedBeaconInstance)
+            {
+                BeaconInstances.Remove(_selectedBeaconInstance);
+                Bibliotheca.CheckIn(_selectedBeaconInstance.GetComponent<BaseBeacon>());
+                _selectedBeaconInstance = null;
+                UpdateSelectedBeaconPanel();
+                ClearAndPopulateListButtonBeacon();
+            }
         }
 
-        //private void DragSelectedBeacon(InputAction.CallbackContext context)
         private void DragSelectedBeacon()
         {
             if (_selectedBeaconInstance && _canSelectedBeaconMove)
@@ -202,7 +187,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
             }
         }
 
-        private void AddBeacon(InputAction.CallbackContext context)
+        private void AddBeacon()
         {
             if (_canAddBeacon)
             {
@@ -229,6 +214,9 @@ namespace Primus.Sample.ModTool.BeaconEditor
 
                     // Keep cache empty when not in use.
                     _beaconInstanceCache = null;
+
+                    UpdateSelectedBeaconPanel();
+                    ClearAndPopulateListButtonBeacon();
                 }
             }
         }
@@ -257,12 +245,13 @@ namespace Primus.Sample.ModTool.BeaconEditor
             BeaconInstances.Clear();
         }
 
-        private void ToggleEscMenu(InputAction.CallbackContext context)
+        private void ToggleEscMenu()
         {
             _canvasManager.PanelEscMenu.gameObject.SetActive(!_canvasManager.PanelEscMenu.gameObject.activeSelf);
             _canvasManager.PanelListBeacon.gameObject.SetActive(!_canvasManager.PanelListBeacon.gameObject.activeSelf);
         }
-        private void UpdateSelectedBeaconPanel(InputAction.CallbackContext context)
+
+        private void UpdateSelectedBeaconPanel()
         {
             _canvasManager.PanelSelectionBeacon.BeaconInstance = _selectedBeaconInstance;
         }
@@ -284,34 +273,45 @@ namespace Primus.Sample.ModTool.BeaconEditor
             _canvasManager.PanelListBeacon.ScrollListBeacon.ClearAndPopulate();
         }
 
-        private void ZoomCameraExponential(InputAction.CallbackContext context)
+
+
+        private void ZoomCameraLinear(float value)
         {
-            float zoomMultiplierExponential = 1.02f;
-
-            // Returns positive/negative multiples of 120.0f
-            float contextValue = context.ReadValue<float>();
-            int contextQuant = 120;
-
-            // contextValue represents scaleFactor within if statement.
-            // Sets scale factor to specified ratio for zoom-in, or inverse of it for zoom-out.
-            if (contextValue < 0)
+            if (_cameraManager.ActiveCamera.orthographic)
             {
-                contextValue = -contextValue;
-                contextValue = Mathf.Pow(zoomMultiplierExponential, ((int)contextValue / contextQuant));
-                contextValue = 1 / contextValue;
+                _cameraManager.ZoomLinearOrthographic(value * _zoomMultiplierOrthographic, 200, 4000);
             }
             else
             {
-                contextValue = Mathf.Pow(zoomMultiplierExponential, ((int)contextValue / contextQuant));
+                _cameraManager.ZoomLinearPerspective(value * _zoomMultiplierPerspective, 0, 400000);
+            }
+        }
+
+        private void ZoomCameraExponential(float value)
+        {
+            float zoomMultiplierExponential = 1.02f;
+            int contextQuant = 120;
+
+            // value represents scaleFactor within if statement.
+            // Sets scale factor to specified ratio for zoom-in, or inverse of it for zoom-out.
+            if (value < 0)
+            {
+                value = -value;
+                value = Mathf.Pow(zoomMultiplierExponential, ((int)value / contextQuant));
+                value = 1 / value;
+            }
+            else
+            {
+                value = Mathf.Pow(zoomMultiplierExponential, ((int)value / contextQuant));
             }
 
             if (_cameraManager.ActiveCamera.orthographic)
             {
-                _cameraManager.ZoomExponentialOrthographic(contextValue);
+                _cameraManager.ZoomExponentialOrthographic(value);
             }
             else
             {
-                _cameraManager.ZoomExponentialPerspective(contextValue);
+                _cameraManager.ZoomExponentialPerspective(value);
             }
         }
     }

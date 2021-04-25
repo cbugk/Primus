@@ -6,10 +6,10 @@ namespace Primus.Sample.ModTool.BeaconEditor.Canvas
 {
     public class CanvasManager : MonoBehaviour
     {
-        public PanelListBeacon PanelListBeacon;
-        public PanelMain PanelMain;
-        public PanelSelectionBeacon PanelSelectionBeacon;
-        public PanelEscMenu PanelEscMenu;
+        [NonSerialized] public PanelListBeacon PanelListBeacon;
+        [NonSerialized] public PanelMain PanelMain;
+        [NonSerialized] public PanelSelectionBeacon PanelSelectionBeacon;
+        [NonSerialized] public PanelEscMenu PanelEscMenu;
 
         private void Awake()
         {
@@ -24,10 +24,10 @@ namespace Primus.Sample.ModTool.BeaconEditor.Canvas
             {
                 PanelEscMenu.gameObject.SetActive(false);
             }
-            // if (PanelListBeacon != null)
-            // {
-            //     PanelListBeacon.gameObject.SetActive(false);
-            // }
+            if (PanelListBeacon != null)
+            {
+                PanelListBeacon.gameObject.SetActive(false);
+            }
         }
     }
 }

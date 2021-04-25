@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Primus.Core;
 using Primus.ModTool.Core;
 
 namespace Primus.ModTool.Functionality
@@ -9,15 +8,13 @@ namespace Primus.ModTool.Functionality
     public class MouseToWorldPosition : IFunctionality
     {
         [field: SerializeField] public Camera ActiveCamera { get; set; }
-        private PrimusInput _primusInput;
         private Ray _ray;
         private RaycastHit _hit;
 
         private Vector3 _infinity3 = new Vector3(Mathf.Infinity, Mathf.Infinity, Mathf.Infinity);
 
-        public MouseToWorldPosition(PrimusInput inputActions)
+        public MouseToWorldPosition()
         {
-            _primusInput = inputActions;
         }
 
         public (Vector3, GameObject) GetHitTuple()

@@ -1,4 +1,4 @@
-// GENERATED AUTOMATICALLY FROM 'Assets/Primus/Core/PrimusInput.inputactions'
+// GENERATED AUTOMATICALLY FROM 'Assets/Primus/Sample/ModTool/BeaconEditor/BeaconEditorInput.inputactions'
 
 using System;
 using System.Collections;
@@ -6,15 +6,15 @@ using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Utilities;
 
-namespace Primus.Core
+namespace Primus.Sample.ModTool.BeaconEditor
 {
-    public class @PrimusInput : IInputActionCollection, IDisposable
+    public class @BeaconEditorInput : IInputActionCollection, IDisposable
     {
         public InputActionAsset asset { get; }
-        public @PrimusInput()
+        public @BeaconEditorInput()
         {
             asset = InputActionAsset.FromJson(@"{
-    ""name"": ""PrimusInput"",
+    ""name"": ""BeaconEditorInput"",
     ""maps"": [
         {
             ""name"": ""Beacon"",
@@ -214,17 +214,6 @@ namespace Primus.Core
                 },
                 {
                     ""name"": """",
-                    ""id"": ""4017370a-e5d5-4475-b2d1-e0ebdc68e7e1"",
-                    ""path"": ""<Mouse>/scroll/y"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Zoom"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""c365a32b-b5c6-41cc-af04-922065d883eb"",
                     ""path"": ""<Mouse>/delta"",
                     ""interactions"": """",
@@ -244,6 +233,39 @@ namespace Primus.Core
                     ""action"": ""MoveLock"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""Button With One Modifier"",
+                    ""id"": ""63c244c4-5fc4-48a7-980c-891d2a3c7f40"",
+                    ""path"": ""ButtonWithOneModifier"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Zoom"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""modifier"",
+                    ""id"": ""eb16d064-ba94-47d8-bdf5-41cbc120cbfc"",
+                    ""path"": ""<Keyboard>/alt"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Zoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""button"",
+                    ""id"": ""14823c58-cc37-43f8-aced-d1b8dd580597"",
+                    ""path"": ""<Mouse>/scroll/y"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Zoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         },
@@ -421,8 +443,8 @@ namespace Primus.Core
         private readonly InputAction m_Beacon_Delete;
         public struct BeaconActions
         {
-            private @PrimusInput m_Wrapper;
-            public BeaconActions(@PrimusInput wrapper) { m_Wrapper = wrapper; }
+            private @BeaconEditorInput m_Wrapper;
+            public BeaconActions(@BeaconEditorInput wrapper) { m_Wrapper = wrapper; }
             public InputAction @MoveLock => m_Wrapper.m_Beacon_MoveLock;
             public InputAction @UnlockAdd => m_Wrapper.m_Beacon_UnlockAdd;
             public InputAction @Add => m_Wrapper.m_Beacon_Add;
@@ -485,8 +507,8 @@ namespace Primus.Core
         private readonly InputAction m_CameraManager_MoveLock;
         public struct CameraManagerActions
         {
-            private @PrimusInput m_Wrapper;
-            public CameraManagerActions(@PrimusInput wrapper) { m_Wrapper = wrapper; }
+            private @BeaconEditorInput m_Wrapper;
+            public CameraManagerActions(@BeaconEditorInput wrapper) { m_Wrapper = wrapper; }
             public InputAction @SwitchToModCam => m_Wrapper.m_CameraManager_SwitchToModCam;
             public InputAction @Zoom => m_Wrapper.m_CameraManager_Zoom;
             public InputAction @Move => m_Wrapper.m_CameraManager_Move;
@@ -540,8 +562,8 @@ namespace Primus.Core
         private readonly InputAction m_CanvasManager_UpdatePanelBeaconSelection;
         public struct CanvasManagerActions
         {
-            private @PrimusInput m_Wrapper;
-            public CanvasManagerActions(@PrimusInput wrapper) { m_Wrapper = wrapper; }
+            private @BeaconEditorInput m_Wrapper;
+            public CanvasManagerActions(@BeaconEditorInput wrapper) { m_Wrapper = wrapper; }
             public InputAction @ToggleEscMenu => m_Wrapper.m_CanvasManager_ToggleEscMenu;
             public InputAction @UpdatePanelBeaconSelection => m_Wrapper.m_CanvasManager_UpdatePanelBeaconSelection;
             public InputActionMap Get() { return m_Wrapper.m_CanvasManager; }
@@ -580,8 +602,8 @@ namespace Primus.Core
         private readonly InputAction m_BeaconEditorManager_ToggleActive;
         public struct BeaconEditorManagerActions
         {
-            private @PrimusInput m_Wrapper;
-            public BeaconEditorManagerActions(@PrimusInput wrapper) { m_Wrapper = wrapper; }
+            private @BeaconEditorInput m_Wrapper;
+            public BeaconEditorManagerActions(@BeaconEditorInput wrapper) { m_Wrapper = wrapper; }
             public InputAction @ToggleActive => m_Wrapper.m_BeaconEditorManager_ToggleActive;
             public InputActionMap Get() { return m_Wrapper.m_BeaconEditorManager; }
             public void Enable() { Get().Enable(); }
