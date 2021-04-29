@@ -19,7 +19,7 @@ namespace Primus.Sample.ModTool.BeaconEditor.IO
                 BaseBeacon beacon = beaconInstances[i].GetComponent<BaseBeacon>();
                 BeaconEditorState.BeaconStates[i] = new BeaconEditorState.BeaconState();
                 BeaconEditorState.BeaconStates[i].Name = beaconInstances[i].name;
-                BeaconEditorState.BeaconStates[i].Type = beacon.Title.ToString();
+                BeaconEditorState.BeaconStates[i].Type = beacon.BiblionTitle.ToString();
                 BeaconEditorState.BeaconStates[i].RotationAngle = beacon.RotationAngle;
                 BeaconEditorState.BeaconStates[i].Position.Vector3 = beaconInstances[i].transform.position;
             }

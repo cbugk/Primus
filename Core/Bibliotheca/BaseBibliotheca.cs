@@ -35,7 +35,7 @@ namespace Primus.Core.Bibliotheca
 
         public void CheckIn(BaseBiblion<TBiblionTitle> biblion)
         {
-            Inventory[TitleToShelfIndex(biblion.Title)].PutBiblion(biblion);
+            Inventory[TitleToShelfIndex(biblion.BiblionTitle)].PutBiblion(biblion);
         }
 
         protected virtual void Start()

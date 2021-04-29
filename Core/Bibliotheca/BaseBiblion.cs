@@ -7,7 +7,7 @@ namespace Primus.Core.Bibliotheca
         where TCatalogTitle : Enum
     {
         //[field: SerializeField] 
-        public TCatalogTitle Title { get; protected set; }
+        public TCatalogTitle BiblionTitle { get; protected set; }
 
         public virtual void EnterRestitutionState()
         {

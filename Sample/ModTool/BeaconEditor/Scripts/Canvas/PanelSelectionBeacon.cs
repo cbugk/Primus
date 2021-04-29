@@ -62,7 +62,7 @@ namespace Primus.Sample.ModTool.BeaconEditor.Canvas
             // Get BeaconType of selected beacon.
             else
             {
-                _beaconTitle = _beaconInstance.GetComponent<BaseBeacon>().Title;
+                _beaconTitle = _beaconInstance.GetComponent<BaseBeacon>().BiblionTitle;
 
                 // Convert into index in array.
                 int index;

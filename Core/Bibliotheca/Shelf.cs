@@ -20,14 +20,14 @@ namespace Primus.Core.Bibliotheca
 
         public void PutBiblion(BaseBiblion<TBiblionTitle> biblion)
         {
-            if (Title.Equals(biblion.Title))
+            if (Title.Equals(biblion.BiblionTitle))
             {
                 biblion.EnterRestitutionState();
                 _stack.Push(biblion);
                 return;
             }
 
-            Debug.LogError($"Product is a different Kind: {biblion.name}, {biblion.Title} ");
+            Debug.LogError($"Product is a different Kind: {biblion.name}, {biblion.BiblionTitle} ");
         }
 
         public BaseBiblion<TBiblionTitle> GetBiblion()
