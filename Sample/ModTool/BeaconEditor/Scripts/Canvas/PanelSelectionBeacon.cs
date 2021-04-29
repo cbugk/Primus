@@ -44,14 +44,6 @@ namespace Primus.Sample.ModTool.BeaconEditor.Canvas
 
         private void Update()
         {
-            // foreach (var panel in PanelBeacons)
-            // {
-            //     if (panel.gameObject.activeSelf)
-            //     {
-            //         PanelBeacons[0].ManualUpdate();
-            //         break;
-            //     }
-            // }
         }
 
         private void UpdateChildrenPanels()

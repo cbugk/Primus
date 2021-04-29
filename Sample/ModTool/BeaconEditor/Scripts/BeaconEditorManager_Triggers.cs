@@ -3,8 +3,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Primus.Core;
 using Primus.ModTool.Core;
-using Primus.ModTool.Functionality;
-using Primus.Sample.ModTool.BeaconEditor.IO;
 
 namespace Primus.Sample.ModTool.BeaconEditor
 {
@@ -21,7 +19,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
         private void OnEnable()
         {
             _beaconEditorInput.BeaconEditorManager.ToggleActive.Enable();
-            _beaconEditorInput.BeaconEditorManager.ToggleActive.performed += ToggleActive;
+            _beaconEditorInput.BeaconEditorManager.ToggleActive.performed += OnToggleActive;
 
             _beaconEditorInput.Beacon.Delete.Enable();
             _beaconEditorInput.Beacon.Delete.performed += OnBeaconDelete;
@@ -65,7 +63,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
         private void OnDisable()
         {
             _beaconEditorInput.BeaconEditorManager.ToggleActive.Disable();
-            _beaconEditorInput.BeaconEditorManager.ToggleActive.performed -= ToggleActive;
+            _beaconEditorInput.BeaconEditorManager.ToggleActive.performed -= OnToggleActive;
 
             _beaconEditorInput.Beacon.Delete.Disable();
             _beaconEditorInput.Beacon.Delete.performed -= OnBeaconDelete;
@@ -130,7 +128,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
             ToggleEscMenu();
         }
 
-        protected void ToggleActive(InputAction.CallbackContext context)
+        protected void OnToggleActive(InputAction.CallbackContext context)
         {
             _areFunctionalitiesActive = !_areFunctionalitiesActive;
         }
