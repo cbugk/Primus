@@ -44,14 +44,18 @@ namespace Primus.Sample.ModTool.BeaconEditor
                 return (_cameraManager.IsActiveOrthographic ? _cameraManager.ActiveOrthographicSize : _cameraManager.ActiveFieldOfView * 2.0f) * 2.5f / 1080;
             }
         }
-        private MouseToWorldPositionManager _mouseToWorldPosition;
+        private CursorManager _cursorManager;
         // Coupled with indNeighborBeaconsInPosition().
         private List<GameObject> _neighborBeaconInstancesCache;
         // Coupled with indNeighborBeaconsInPosition().
         private List<float> _neighborBeaconInstancesDistanceCache;
         // Instance cache for new beacon checkouts, is set to null when not in use.
         private GameObject _beaconInstanceCache;
-        [SerializeField] private GameObject _selectedBeaconInstance;
+        private GameObject _selectedBeaconInstance = null;
+
+        Vector3 _selectionOffsetCache;
+        [Header("Layers")] [SerializeField] LayerMask _layerBackground;
+        [SerializeField] LayerMask _layerBeacon;
 
         protected override void Awake()
         {
@@ -66,11 +70,11 @@ namespace Primus.Sample.ModTool.BeaconEditor
             _beaconEditorInput = new BeaconEditorInput();
 
             //Instantiate NonSerialized Functionalities
-            _mouseToWorldPosition = new MouseToWorldPositionManager();
+            _cursorManager = CursorManager.Instance;
             if (_cameraManager != null)
             {
                 _cameraManager.ManualAwake();
-                _mouseToWorldPosition.ActiveCamera = _cameraManager.ActiveCamera;
+                _cursorManager.ActiveCamera = _cameraManager.ActiveCamera;
             }
         }
 
@@ -93,7 +97,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
         {
             // Always switches to other than active camera
             _cameraManager.SwitchTo(1);
-            _mouseToWorldPosition.ActiveCamera = _cameraManager.ActiveCamera;
+            _cursorManager.ActiveCamera = _cameraManager.ActiveCamera;
         }
 
         private void MoveCamera(Vector2 delta)
@@ -152,10 +156,23 @@ namespace Primus.Sample.ModTool.BeaconEditor
 
         private void SelectBeacon()
         {
-            Vector3 coordinates = _mouseToWorldPosition.GetCoordinates();
-            // If there was no hit
-            if (coordinates.x == Mathf.Infinity) { return; }
-            _selectedBeaconInstance = FindNearestBeaconWithinRadiusAtPosition(_neighborBeaconDistanceLowerLimit / 2.0f + _neighborBeaconDistanceEpsilon, coordinates);
+            var quadruple = _cursorManager.GetHit(_layerBackground);
+            // If there was UI hit
+            if (quadruple.Item4)
+            {
+                _selectedBeaconInstance = null;
+                return;
+            }
+            // If there was no Beacon hit
+            if (quadruple.Item1.x == Mathf.Infinity) { return; }
+            _selectedBeaconInstance = FindNearestBeaconWithinRadiusAtPosition(
+                _neighborBeaconDistanceLowerLimit / 2.0f + _neighborBeaconDistanceEpsilon,
+                quadruple.Item1
+            );
+            if (_selectedBeaconInstance)
+            {
+                _selectionOffsetCache = quadruple.Item1 - _selectedBeaconInstance.transform.position;
+            }
         }
 
         private void DeleteSelectedBeacon()
@@ -174,7 +191,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
         {
             if (_selectedBeaconInstance && _canSelectedBeaconMove)
             {
-                Vector3 coordinates = _mouseToWorldPosition.GetCoordinates();
+                Vector3 coordinates = _cursorManager.GetCoordinates(_layerBackground);
                 if (coordinates.x == Mathf.Infinity) { return; }
 
                 coordinates.y = 0;
@@ -190,7 +207,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
         {
             if (_canAddBeacon)
             {
-                Vector3 coordinates = _mouseToWorldPosition.GetCoordinates();
+                Vector3 coordinates = _cursorManager.GetCoordinates(_layerBackground);
                 // Height is standardized to zero
                 coordinates.y = 0;
 

@@ -6,8 +6,8 @@ using Primus.Core;
 namespace Primus.ModTool.Functionality
 {
     [System.Serializable]
-    public class MouseToWorldPositionMaskedManager :
-        BaseMonoSingleton<MouseToWorldPositionMaskedManager>, IFunctionality
+    public class CursorManager :
+        BaseMonoSingleton<CursorManager>, IFunctionality
     {
         [field: SerializeField] public Camera ActiveCamera { get; set; }
         private Ray _ray;
