@@ -1,23 +1,57 @@
 ﻿using System;
-using Primus.Core.Bibliotheca;
 using UnityEngine;
+using Primus.Core.Bibliotheca;
 
 namespace Primus.Biblion.Conveyor
 {
     [ExecuteInEditMode]
     public abstract class BaseConveyor<TCatalogTitle> : BaseBiblion<TCatalogTitle> where TCatalogTitle : Enum
     {
-        [SerializeField] private readonly float _beltToDiameterRatio = 0.1f;
+        // Kill switch (let's conveyor remember last set _velocityMultiplier)
+        [field: SerializeField] public bool DoRun { get; set; }
+        [field: SerializeField] public float MultiplierVelocity { get; set; }
+        [SerializeField] private float _width;
+        public float Width
+        {
+            get => _width;
+            set
+            {
+                _width = value;
+            }
+        }
+        [SerializeField] private float _length;
+        public float Length
+        {
+            get => _length;
+            set
+            {
+                _length = value;
+                OnDimensionChanged();
+            }
+        }
+        [SerializeField] private float _diameter;
+        public float Diameter
+        {
+            get => _diameter;
+            set
+            {
+                _diameter = value;
+                OnDimensionChanged();
+            }
+        }
+        [SerializeField] private float _beltThicknessToDiameterRatio = 0.1f;
 
-        [SerializeField] private readonly bool _doCreateBeltBelow = true;
+        [SerializeField] private bool _doCreateBeltBelow = true;
 
         // Length and diameter are calculated in terms of one another (and tile numbers)
-        [SerializeField] private readonly bool _isLengthPrimary = true;
+        [SerializeField] private bool _isPrimaryLengthNotDiameter = true;
+
+
 
         // Object for sourcing rotation, position and some size information
-        [SerializeField] private readonly int _numberBeltTiles = 10;
-        [SerializeField] private readonly int _numberRollerTiles = 1;
-        [SerializeField] private readonly float _rollerWidthMultiplier = 1.0f;
+        [SerializeField] private int _numberBeltTiles = 10;
+        [SerializeField] private int _numberRollerTiles = 1;
+        [SerializeField] private float _multiplierRollerWidth = 1.0f;
         private float _accumulatedOffset;
 
         // BELTS.
@@ -49,10 +83,18 @@ namespace Primus.Biblion.Conveyor
         private Transform _beltTransformBelowRight;
         private Transform _beltTransformBelowUp;
 
+        // ROLLERS
+        [SerializeField] private GameObject _rollerFront;
+        [SerializeField] private GameObject _rollerHind;
+        private Renderer _rollerRendererFront;
+        private Renderer _rollerRendererHind;
+        private Transform _rollerTransformFront;
+        private Transform _rollerTransformHind;
+        private float _tileLength;
+
         // Caching members
         private float _deltaVelocityTime;
-        private float _diameter;
-        private float _length;
+
         [SerializeField] private Material _materialBeltSide;
         [SerializeField] private Material _materialBeltUp;
 
@@ -63,52 +105,40 @@ namespace Primus.Biblion.Conveyor
         private Quaternion _rollerDeltaRotation;
         private Vector3 _rollerEulerAnglePerTile = Vector3.zero;
 
-        // ROLLERS
-        [SerializeField] private GameObject _rollerFront;
-        [SerializeField] private GameObject _rollerHind;
-        private Renderer _rollerRendererFront;
-        private Renderer _rollerRendererHind;
-        private Transform _rollerTransformFront;
-        private Transform _rollerTransformHind;
-        private float _tileLength;
-
-        private float _width;
-        [SerializeField] public float Diameter;
-        [SerializeField] public float Length;
-
         //UpdteStateCache
         private Vector3 partTransformLocalPositionCache = Vector3.zero;
         private Vector3 partTransformLocalScaleCache = Vector3.forward;
 
-        [SerializeField] public float Width;
 
-        // Kill switch (let's conveyor remember last set _velocityMultiplier)
-        [field: SerializeField] public bool DoRun { get; set; }
-        [field: SerializeField] public float VelocityMultiplier { get; set; }
 
         private void Awake()
         {
-            CalculateVariables();
-            SetParts();
-            UpdateState();
+            SetCaches();
+            OnDimensionChanged();
         }
 
         // Governing surface and physics
         private void FixedUpdate()
         {
-            CalculateVariables();
-            UpdateState();
             FixedUpdatePhysicsAndRendering();
         }
 
-        private void OnValidate()
+        private void Update()
         {
-            CalculateVariables();
-            UpdateState();
+#if UNITY_EDITOR
+            // Reshapes biblion within editor. 
+            OnDimensionChanged();
+#endif
         }
 
-        // Calculates values whenever a change is made
-        private void CalculateVariables()
+        private void OnDimensionChanged()
+        {
+            CalculateDimensionVariables();
+            UpdateStates();
+        }
+
+        /// <summary>Calculates dependent values whenever a change is made.</summary>
+        private void CalculateDimensionVariables()
         {
             // Cylinder wraps same tile twice, adjusting tile number accordingly.
             _numberRollerTilesTwice = _numberRollerTiles * 2;
@@ -120,8 +150,7 @@ namespace Primus.Biblion.Conveyor
                 return;
             }
 
-            _width = Width;
-            if (_isLengthPrimary)
+            if (_isPrimaryLengthNotDiameter)
             {
                 _length = Length;
                 _tileLength = _length / _numberBeltTiles;
@@ -135,188 +164,16 @@ namespace Primus.Biblion.Conveyor
             }
 
             // After _diameter is decided upon
-            _beltThickness = _beltToDiameterRatio * _diameter;
+            _beltThickness = _beltThicknessToDiameterRatio * _diameter;
 
             _rollerEulerAnglePerTile.y = 360.0f / _numberRollerTilesTwice;
-        }
-
-        private void SetParts()
-        {
-            SetBeltPart(_beltAboveLeft, out _beltBodyAboveLeft, out _beltRendererAboveLeft,
-                out _beltTransformAboveLeft);
-            SetBeltPart(_beltAboveUp, out _beltBodyAboveUp, out _beltRendererAboveUp, out _beltTransformAboveUp);
-            SetBeltPart(_beltAboveRight, out _beltBodyAboveRight, out _beltRendererAboveRight,
-                out _beltTransformAboveRight);
-
-            if (_doCreateBeltBelow)
-            {
-                SetBeltPart(_beltBelowLeft, out _beltBodyBelowLeft, out _beltRendererBelowLeft,
-                    out _beltTransformBelowLeft);
-                SetBeltPart(_beltBelowUp, out _beltBodyBelowUp, out _beltRendererBelowUp, out _beltTransformBelowUp);
-                SetBeltPart(_beltBelowRight, out _beltBodyBelowRight, out _beltRendererBelowRight,
-                    out _beltTransformBelowRight);
-            }
-
-            SetRoller(_rollerFront, out _rollerBodyFront, out _rollerRendererFront, out _rollerTransformFront);
-
-            SetRoller(_rollerHind, out _rollerBodyHind, out _rollerRendererHind, out _rollerTransformHind);
-        }
-
-        private void SetBeltPart(in GameObject beltPart, out Rigidbody beltBody, out Renderer beltRenderer,
-            out Transform beltTransform)
-        {
-            beltBody = beltPart.GetComponent<Rigidbody>();
-            beltBody.isKinematic = true;
-
-            beltRenderer = beltPart.GetComponent<Renderer>();
-
-            beltTransform = beltPart.transform;
-        }
-
-        private void SetRoller(in GameObject roller, out Rigidbody rollerBody, out Renderer rollerRenderer,
-            out Transform rollerTransform)
-        {
-            rollerBody = roller.GetComponent<Rigidbody>();
-            rollerBody.isKinematic = true;
-
-            rollerRenderer = roller.GetComponent<Renderer>();
-
-            rollerTransform = roller.transform;
-
-            rollerTransform.rotation = transform.rotation;
-
-            // Make roller's y direction look transform.right
-            rollerTransform.localEulerAngles = new Vector3(0, 0, -90);
-        }
-
-        private void UpdateState()
-        {
-            UpdateBeltState(1, _beltRendererAboveLeft, _beltTransformAboveLeft);
-            UpdateBeltState(2, _beltRendererAboveUp, _beltTransformAboveUp);
-            UpdateBeltState(3, _beltRendererAboveRight, _beltTransformAboveRight);
-
-            if (_doCreateBeltBelow)
-            {
-                UpdateBeltState(4, _beltRendererBelowLeft, _beltTransformBelowLeft);
-                UpdateBeltState(5, _beltRendererBelowUp, _beltTransformBelowUp);
-                UpdateBeltState(6, _beltRendererBelowRight, _beltTransformBelowRight);
-            }
-
-            UpdateRollerState(true, _rollerRendererFront, _rollerTransformFront);
-
-            UpdateRollerState(false, _rollerRendererHind, _rollerTransformHind);
-        }
-
-        private void UpdateBeltState(int partNumber, Renderer beltRenderer, Transform beltTransform)
-        {
-            if (beltRenderer == null || beltTransform == null)
-            {
-                return;
-                ;
-            }
-
-            switch (partNumber)
-            {
-                case 1:
-                    partTransformLocalPositionCache.x = -_width / 2.0f;
-                    partTransformLocalPositionCache.y = (_diameter - _beltThickness) / 2.0f;
-                    partTransformLocalPositionCache.z = 0.0f;
-                    beltTransform.localPosition = partTransformLocalPositionCache;
-                    // Norm is conveyor's left
-                    beltTransform.localRotation = Quaternion.Euler(0, 90, 90);
-                    partTransformLocalScaleCache.x = _beltThickness;
-                    partTransformLocalScaleCache.y = _length - _diameter;
-                    partTransformLocalScaleCache.z = 1.0f;
-                    beltTransform.localScale = partTransformLocalScaleCache;
-                    if (!beltRenderer.sharedMaterial) beltRenderer.sharedMaterial = _materialBeltSide;
-                    break;
-                case 2:
-                    partTransformLocalPositionCache.x = 0.0f;
-                    partTransformLocalPositionCache.y = _diameter / 2.0f;
-                    partTransformLocalPositionCache.z = 0.0f;
-                    beltTransform.localPosition = partTransformLocalPositionCache;
-                    // Norm is conveyor's up
-                    beltTransform.localRotation = Quaternion.Euler(90, 0, 0);
-                    partTransformLocalScaleCache.x = _width;
-                    partTransformLocalScaleCache.y = _length - _diameter;
-                    partTransformLocalScaleCache.z = 1.0f;
-                    beltTransform.localScale = partTransformLocalScaleCache;
-                    if (!beltRenderer.sharedMaterial) beltRenderer.sharedMaterial = _materialBeltUp;
-                    break;
-                case 3:
-                    partTransformLocalPositionCache.x = _width / 2.0f;
-                    partTransformLocalPositionCache.y = (_diameter - _beltThickness) / 2.0f;
-                    partTransformLocalPositionCache.z = 0.0f;
-                    beltTransform.localPosition = partTransformLocalPositionCache;
-                    // Norm is conveyor's right
-                    beltTransform.localRotation = Quaternion.Euler(0, -90, -90);
-                    partTransformLocalScaleCache.x = _beltThickness;
-                    partTransformLocalScaleCache.y = _length - _diameter;
-                    partTransformLocalScaleCache.z = 1.0f;
-                    beltTransform.localScale = partTransformLocalScaleCache;
-                    if (!beltRenderer.sharedMaterial) beltRenderer.sharedMaterial = _materialBeltSide;
-                    break;
-                case 4:
-                    partTransformLocalPositionCache.x = -_width / 2.0f;
-                    partTransformLocalPositionCache.y = -(_diameter - _beltThickness) / 2.0f;
-                    partTransformLocalPositionCache.z = 0.0f;
-                    beltTransform.localPosition = partTransformLocalPositionCache;
-                    // Norm is conveyor's left
-                    beltTransform.localRotation = Quaternion.Euler(0, 90, -90);
-                    partTransformLocalScaleCache.x = _beltThickness;
-                    partTransformLocalScaleCache.y = _length - _diameter;
-                    partTransformLocalScaleCache.z = 1.0f;
-                    beltTransform.localScale = partTransformLocalScaleCache;
-                    if (!beltRenderer.sharedMaterial) beltRenderer.sharedMaterial = _materialBeltSide;
-                    break;
-                case 5:
-                    partTransformLocalPositionCache.x = 0.0f;
-                    partTransformLocalPositionCache.y = -_diameter / 2.0f;
-                    partTransformLocalPositionCache.z = 0.0f;
-                    beltTransform.localPosition = partTransformLocalPositionCache;
-                    // Norm is conveyor's down
-                    beltTransform.localRotation = Quaternion.Euler(-90, 0, 0);
-                    partTransformLocalScaleCache.x = _width;
-                    partTransformLocalScaleCache.y = _length - _diameter;
-                    partTransformLocalScaleCache.z = 1.0f;
-                    beltTransform.localScale = partTransformLocalScaleCache;
-                    if (!beltRenderer.sharedMaterial) beltRenderer.sharedMaterial = _materialBeltUp;
-                    break;
-                case 6:
-                    partTransformLocalPositionCache.x = _width / 2.0f;
-                    partTransformLocalPositionCache.y = -(_diameter - _beltThickness) / 2.0f;
-                    partTransformLocalPositionCache.z = 0.0f;
-                    beltTransform.localPosition = partTransformLocalPositionCache;
-                    // Norm is conveyor's right
-                    beltTransform.localRotation = Quaternion.Euler(0, -90, 90);
-                    partTransformLocalScaleCache.x = _beltThickness;
-                    partTransformLocalScaleCache.y = _length - _diameter;
-                    partTransformLocalScaleCache.z = 1.0f;
-                    beltTransform.localScale = partTransformLocalScaleCache;
-                    if (!beltRenderer.sharedMaterial) beltRenderer.sharedMaterial = _materialBeltSide;
-                    break;
-            }
-        }
-
-        private void UpdateRollerState(bool isFront, Renderer rollerRenderer, Transform rollerTransform)
-        {
-            if (rollerRenderer == null || rollerTransform == null) return;
-            partTransformLocalPositionCache.x = 0.0f;
-            partTransformLocalPositionCache.y = 0.0f;
-            partTransformLocalPositionCache.z = (isFront ? 1.0f : -1.0f) * (_length - _diameter) / 2.0f;
-            rollerTransform.localPosition = partTransformLocalPositionCache;
-            partTransformLocalScaleCache.x = _diameter;
-            partTransformLocalScaleCache.y = _rollerWidthMultiplier * (_width / 2.0f);
-            partTransformLocalScaleCache.z = _diameter;
-
-            if (!rollerRenderer.sharedMaterial) rollerRenderer.sharedMaterial = _materialRoller;
         }
 
         private void FixedUpdatePhysicsAndRendering()
         {
             if (!DoRun) return;
 
-            _deltaVelocityTime = VelocityMultiplier * Time.deltaTime;
+            _deltaVelocityTime = MultiplierVelocity * Time.deltaTime;
 
             _beltStep = transform.forward * _deltaVelocityTime;
 
@@ -362,14 +219,196 @@ namespace Primus.Biblion.Conveyor
             }
         }
 
-        public override void EnterRestitutionState()
+        // HEREAFTER functions for setting part caches.
+        ///<summary>Sets caches for belts and rollers.</summary>
+        private void SetCaches()
         {
-            gameObject.SetActive(false);
+            SetCachesBeltPart(_beltAboveLeft, out _beltBodyAboveLeft, out _beltRendererAboveLeft,
+                out _beltTransformAboveLeft);
+            SetCachesBeltPart(_beltAboveUp, out _beltBodyAboveUp, out _beltRendererAboveUp, out _beltTransformAboveUp);
+            SetCachesBeltPart(_beltAboveRight, out _beltBodyAboveRight, out _beltRendererAboveRight,
+                out _beltTransformAboveRight);
+
+            if (_doCreateBeltBelow)
+            {
+                SetCachesBeltPart(_beltBelowLeft, out _beltBodyBelowLeft, out _beltRendererBelowLeft,
+                    out _beltTransformBelowLeft);
+                SetCachesBeltPart(_beltBelowUp, out _beltBodyBelowUp, out _beltRendererBelowUp, out _beltTransformBelowUp);
+                SetCachesBeltPart(_beltBelowRight, out _beltBodyBelowRight, out _beltRendererBelowRight,
+                    out _beltTransformBelowRight);
+            }
+
+            SetCachesRoller(_rollerFront, out _rollerBodyFront, out _rollerRendererFront, out _rollerTransformFront);
+
+            SetCachesRoller(_rollerHind, out _rollerBodyHind, out _rollerRendererHind, out _rollerTransformHind);
         }
 
-        public override void EnterCirculationState()
+        ///<summary>Sets caches for a belt part.</summary>
+        private void SetCachesBeltPart(in GameObject beltPart, out Rigidbody beltBody, out Renderer beltRenderer,
+            out Transform beltTransform)
         {
-            gameObject.SetActive(true);
+            beltBody = beltPart.GetComponent<Rigidbody>();
+            beltBody.isKinematic = true;
+
+            beltRenderer = beltPart.GetComponent<Renderer>();
+
+            beltTransform = beltPart.transform;
+        }
+        ///<summary>Sets caches for a roller.</summary>
+        private void SetCachesRoller(in GameObject roller, out Rigidbody rollerBody, out Renderer rollerRenderer,
+            out Transform rollerTransform)
+        {
+            rollerBody = roller.GetComponent<Rigidbody>();
+            rollerBody.isKinematic = true;
+
+            rollerRenderer = roller.GetComponent<Renderer>();
+
+            rollerTransform = roller.transform;
+
+            rollerTransform.rotation = transform.rotation;
+
+            // Make roller's y direction look transform.right
+            rollerTransform.localEulerAngles = new Vector3(0, 0, -90);
+        }
+
+        // HEREAFTER functions for setting part caches.
+        ///<summary>Updates belt and roller states.</summary>
+        private void UpdateStates()
+        {
+            UpdateStateBelt(BeltPartType.ABOVE_LEFT, _beltRendererAboveLeft, _beltTransformAboveLeft);
+            UpdateStateBelt(BeltPartType.ABOVE_MIDDLE, _beltRendererAboveUp, _beltTransformAboveUp);
+            UpdateStateBelt(BeltPartType.ABOVE_RIGHT, _beltRendererAboveRight, _beltTransformAboveRight);
+
+            if (_doCreateBeltBelow)
+            {
+                UpdateStateBelt(BeltPartType.BELOW_LEFT, _beltRendererBelowLeft, _beltTransformBelowLeft);
+                UpdateStateBelt(BeltPartType.BELOW_MIDDLE, _beltRendererBelowUp, _beltTransformBelowUp);
+                UpdateStateBelt(BeltPartType.BELOW_RIGHT, _beltRendererBelowRight, _beltTransformBelowRight);
+            }
+
+            UpdateStateRoller(true, _rollerRendererFront, _rollerTransformFront);
+
+            UpdateStateRoller(false, _rollerRendererHind, _rollerTransformHind);
+        }
+
+        ///<summary>Updates position, rotation, local scale, and material of belt.</summary>
+        private void UpdateStateBelt(BeltPartType partType, Renderer beltRenderer, Transform beltTransform)
+        {
+            if (beltRenderer == null || beltTransform == null)
+            {
+                return;
+                ;
+            }
+
+            switch (partType)
+            {
+                case BeltPartType.ABOVE_LEFT:
+                    partTransformLocalPositionCache.x = -_width / 2.0f;
+                    partTransformLocalPositionCache.y = (_diameter - _beltThickness) / 2.0f;
+                    partTransformLocalPositionCache.z = 0.0f;
+                    beltTransform.localPosition = partTransformLocalPositionCache;
+                    // Norm is conveyor's left
+                    beltTransform.localRotation = Quaternion.Euler(0, 90, 90);
+                    partTransformLocalScaleCache.x = _beltThickness;
+                    partTransformLocalScaleCache.y = _length - _diameter;
+                    partTransformLocalScaleCache.z = 1.0f;
+                    beltTransform.localScale = partTransformLocalScaleCache;
+                    if (!beltRenderer.sharedMaterial) beltRenderer.sharedMaterial = _materialBeltSide;
+                    break;
+                case BeltPartType.ABOVE_MIDDLE:
+                    partTransformLocalPositionCache.x = 0.0f;
+                    partTransformLocalPositionCache.y = _diameter / 2.0f;
+                    partTransformLocalPositionCache.z = 0.0f;
+                    beltTransform.localPosition = partTransformLocalPositionCache;
+                    // Norm is conveyor's up
+                    beltTransform.localRotation = Quaternion.Euler(90, 0, 0);
+                    partTransformLocalScaleCache.x = _width;
+                    partTransformLocalScaleCache.y = _length - _diameter;
+                    partTransformLocalScaleCache.z = 1.0f;
+                    beltTransform.localScale = partTransformLocalScaleCache;
+                    if (!beltRenderer.sharedMaterial) beltRenderer.sharedMaterial = _materialBeltUp;
+                    break;
+                case BeltPartType.ABOVE_RIGHT:
+                    partTransformLocalPositionCache.x = _width / 2.0f;
+                    partTransformLocalPositionCache.y = (_diameter - _beltThickness) / 2.0f;
+                    partTransformLocalPositionCache.z = 0.0f;
+                    beltTransform.localPosition = partTransformLocalPositionCache;
+                    // Norm is conveyor's right
+                    beltTransform.localRotation = Quaternion.Euler(0, -90, -90);
+                    partTransformLocalScaleCache.x = _beltThickness;
+                    partTransformLocalScaleCache.y = _length - _diameter;
+                    partTransformLocalScaleCache.z = 1.0f;
+                    beltTransform.localScale = partTransformLocalScaleCache;
+                    if (!beltRenderer.sharedMaterial) beltRenderer.sharedMaterial = _materialBeltSide;
+                    break;
+                case BeltPartType.BELOW_LEFT:
+                    partTransformLocalPositionCache.x = -_width / 2.0f;
+                    partTransformLocalPositionCache.y = -(_diameter - _beltThickness) / 2.0f;
+                    partTransformLocalPositionCache.z = 0.0f;
+                    beltTransform.localPosition = partTransformLocalPositionCache;
+                    // Norm is conveyor's left
+                    beltTransform.localRotation = Quaternion.Euler(0, 90, -90);
+                    partTransformLocalScaleCache.x = _beltThickness;
+                    partTransformLocalScaleCache.y = _length - _diameter;
+                    partTransformLocalScaleCache.z = 1.0f;
+                    beltTransform.localScale = partTransformLocalScaleCache;
+                    if (!beltRenderer.sharedMaterial) beltRenderer.sharedMaterial = _materialBeltSide;
+                    break;
+                case BeltPartType.BELOW_MIDDLE:
+                    partTransformLocalPositionCache.x = 0.0f;
+                    partTransformLocalPositionCache.y = -_diameter / 2.0f;
+                    partTransformLocalPositionCache.z = 0.0f;
+                    beltTransform.localPosition = partTransformLocalPositionCache;
+                    // Norm is conveyor's down
+                    beltTransform.localRotation = Quaternion.Euler(-90, 0, 0);
+                    partTransformLocalScaleCache.x = _width;
+                    partTransformLocalScaleCache.y = _length - _diameter;
+                    partTransformLocalScaleCache.z = 1.0f;
+                    beltTransform.localScale = partTransformLocalScaleCache;
+                    if (!beltRenderer.sharedMaterial) beltRenderer.sharedMaterial = _materialBeltUp;
+                    break;
+                case BeltPartType.BELOW_RIGHT:
+                    partTransformLocalPositionCache.x = _width / 2.0f;
+                    partTransformLocalPositionCache.y = -(_diameter - _beltThickness) / 2.0f;
+                    partTransformLocalPositionCache.z = 0.0f;
+                    beltTransform.localPosition = partTransformLocalPositionCache;
+                    // Norm is conveyor's right
+                    beltTransform.localRotation = Quaternion.Euler(0, -90, 90);
+                    partTransformLocalScaleCache.x = _beltThickness;
+                    partTransformLocalScaleCache.y = _length - _diameter;
+                    partTransformLocalScaleCache.z = 1.0f;
+                    beltTransform.localScale = partTransformLocalScaleCache;
+                    if (!beltRenderer.sharedMaterial) beltRenderer.sharedMaterial = _materialBeltSide;
+                    break;
+            }
+        }
+
+        ///<summary>Updates position, local scale, and material of roller.</summary>
+        private void UpdateStateRoller(bool isFront, Renderer rollerRenderer, Transform rollerTransform)
+        {
+            if (rollerRenderer == null || rollerTransform == null) Debug.Log("Houston!!!!!");
+            if (rollerRenderer == null || rollerTransform == null) return;
+            partTransformLocalPositionCache.x = 0.0f;
+            partTransformLocalPositionCache.y = 0.0f;
+            partTransformLocalPositionCache.z = (isFront ? 1.0f : -1.0f) * (_length - _diameter) / 2.0f;
+            rollerTransform.localPosition = partTransformLocalPositionCache;
+            partTransformLocalScaleCache.x = _diameter;
+            partTransformLocalScaleCache.y = _multiplierRollerWidth * (_width / 2.0f);
+            partTransformLocalScaleCache.z = _diameter;
+            rollerTransform.localScale = partTransformLocalScaleCache;
+
+            if (!rollerRenderer.sharedMaterial) rollerRenderer.sharedMaterial = _materialRoller;
+        }
+
+        public enum BeltPartType
+        {
+            INVALID = 0,
+            ABOVE_LEFT = 1,
+            ABOVE_MIDDLE = 2,
+            ABOVE_RIGHT = 3,
+            BELOW_LEFT = 4,
+            BELOW_MIDDLE = 5,
+            BELOW_RIGHT = 6
         }
     }
 }

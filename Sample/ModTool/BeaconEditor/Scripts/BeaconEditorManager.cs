@@ -265,7 +265,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
             IO.StateIO.Read("Save01.bin");
             foreach (var beaconInstance in BeaconInstances)
             {
-                BeaconType type = beaconInstance.GetComponent<BaseBeacon>().Title;
+                BeaconType type = beaconInstance.GetComponent<BaseBeacon>().BiblionTitle;
             }
         }
         private void ClearAndPopulateListButtonBeacon()

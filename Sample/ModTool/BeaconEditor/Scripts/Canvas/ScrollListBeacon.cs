@@ -11,7 +11,7 @@ namespace Primus.Sample.ModTool.BeaconEditor.Canvas
         [NonSerialized] public List<GameObject> ButtonInstances;
         private GameObject _buttonInstanceCache;
         private RectTransform _viewPortTransform;
-        private Transform _contentTransform;
+        private RectTransform _contentTransform;
         private List<GameObject> _beaconInstances;
         private Vector2 _sizeDeltaCache;
 
@@ -22,7 +22,7 @@ namespace Primus.Sample.ModTool.BeaconEditor.Canvas
             ButtonInstances = new List<GameObject>();
             _beaconInstances = BeaconEditorManager.Instance.BeaconInstances;
             _viewPortTransform = GetComponentInChildren<Mask>().GetComponent<RectTransform>();
-            _contentTransform = GetComponentInChildren<ContentSizeFitter>().GetComponent<Transform>();
+            _contentTransform = GetComponentInChildren<ContentSizeFitter>().GetComponent<RectTransform>();
         }
 
         public void AddButton(string name)

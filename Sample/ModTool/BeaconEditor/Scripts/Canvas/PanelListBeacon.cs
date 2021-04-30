@@ -5,7 +5,7 @@ namespace Primus.Sample.ModTool.BeaconEditor.Canvas
 {
     public class PanelListBeacon : MonoBehaviour
     {
-        public ScrollListBeacon ScrollListBeacon;
+        [NonSerialized] public ScrollListBeacon ScrollListBeacon;
 
         private void Awake()
         {

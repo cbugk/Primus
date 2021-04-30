@@ -16,10 +16,8 @@ namespace Primus.Sample.ModTool.BeaconEditor.Canvas
             base.Awake();
         }
 
-        // Update does not run.
         protected virtual void Update()
         {
-            Debug.LogWarning("Updated");
         }
 
         internal void ManualUpdate()

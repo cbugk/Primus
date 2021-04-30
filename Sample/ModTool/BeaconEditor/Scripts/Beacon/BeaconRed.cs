@@ -8,7 +8,7 @@ namespace Primus.Sample.ModTool.BeaconEditor.Beacon
         protected override void Awake()
         {
             base.Awake();
-            Title = BeaconType.RED;
+            BiblionTitle = BeaconType.RED;
             _childrenGreen = new List<BeaconGreen>();
         }
     }

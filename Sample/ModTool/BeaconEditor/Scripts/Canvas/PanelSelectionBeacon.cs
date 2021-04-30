@@ -44,14 +44,6 @@ namespace Primus.Sample.ModTool.BeaconEditor.Canvas
 
         private void Update()
         {
-            // foreach (var panel in PanelBeacons)
-            // {
-            //     if (panel.gameObject.activeSelf)
-            //     {
-            //         PanelBeacons[0].ManualUpdate();
-            //         break;
-            //     }
-            // }
         }
 
         private void UpdateChildrenPanels()
@@ -70,7 +62,7 @@ namespace Primus.Sample.ModTool.BeaconEditor.Canvas
             // Get BeaconType of selected beacon.
             else
             {
-                _beaconTitle = _beaconInstance.GetComponent<BaseBeacon>().Title;
+                _beaconTitle = _beaconInstance.GetComponent<BaseBeacon>().BiblionTitle;
 
                 // Convert into index in array.
                 int index;
