@@ -139,10 +139,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 8066578466216176628}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de45010e45e68094db346b8853edc47f, type: 3}
+  m_Script: {fileID: 11500000, guid: bd9c68e11d0c9e94f9521fbed9eb6bdf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _rotationAngle: 0
 --- !u!33 &8066578466216176633
 MeshFilter:
   m_ObjectHideFlags: 0

@@ -110,7 +110,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
 
         private void OnUpdatePanelBeaconSelection(InputAction.CallbackContext context)
         {
-            UpdateSelectedBeaconPanel();
+            OnSelectedBeaconChanged();
         }
 
         private void OnBeaconDelete(InputAction.CallbackContext context)

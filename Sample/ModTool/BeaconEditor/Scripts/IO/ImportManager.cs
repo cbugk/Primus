@@ -14,6 +14,7 @@ namespace Primus.Sample.ModTool.BeaconEditor.IO
             {
                 ParseBeacon(beaconState.Type, beaconState.Name, beaconState.Position.Vector3, beaconState.RotationAngle = 0);
             }
+            BeaconEditorManager.Instance.OnBeaconInstancesChanged();
         }
 
         static void ParseBeacon(string beaconTypeString, string name, Vector3 position, float rotationAngle)

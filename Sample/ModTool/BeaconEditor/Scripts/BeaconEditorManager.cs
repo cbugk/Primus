@@ -83,6 +83,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
 
             AddCanvasListeners();
         }
+
         private void Update()
         {
             DragSelectedBeacon();
@@ -164,8 +165,8 @@ namespace Primus.Sample.ModTool.BeaconEditor
                 BeaconInstances.Remove(_selectedBeaconInstance);
                 Bibliotheca.CheckIn(_selectedBeaconInstance.GetComponent<BaseBeacon>());
                 _selectedBeaconInstance = null;
-                UpdateSelectedBeaconPanel();
-                ClearAndPopulateListButtonBeacon();
+                OnSelectedBeaconChanged();
+                OnBeaconInstancesChanged();
             }
         }
 
@@ -213,8 +214,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
                     // Keep cache empty when not in use.
                     _beaconInstanceCache = null;
 
-                    UpdateSelectedBeaconPanel();
-                    ClearAndPopulateListButtonBeacon();
+                    OnBeaconInstancesChanged();
                 }
             }
         }
@@ -249,9 +249,14 @@ namespace Primus.Sample.ModTool.BeaconEditor
             _canvasManager.PanelListBeacon.gameObject.SetActive(!_canvasManager.PanelListBeacon.gameObject.activeSelf);
         }
 
-        private void UpdateSelectedBeaconPanel()
+        private void OnSelectedBeaconChanged()
         {
             _canvasManager.PanelSelectionBeacon.BeaconInstance = _selectedBeaconInstance;
+        }
+
+        public void OnBeaconInstancesChanged()
+        {
+            ClearAndPopulateListButtonBeacon();
         }
 
         private void SaveState()

@@ -60,7 +60,9 @@ namespace Primus.Sample.ModTool.BeaconEditor.IO
                 filePath = directoryPath + fileName;
 
                 fileStream = File.Open(filePath, FileMode.Open);
+
                 ImportManager.Load((BeaconEditorState)binaryFormatter.Deserialize(fileStream));
+
                 Debug.Log("Loaded from: " + directoryPath);
             }
             catch (System.Exception e) { if (e != null) { Debug.LogError(e); } }

@@ -12,18 +12,16 @@ namespace Primus.Sample.ModTool.BeaconEditor.Canvas
             get => _beaconInstance;
             set
             {
-                _beaconInstance = value;
-                UpdateChildrenPanels();
+                OnBeaconChanged(value);
             }
         }
 
-        private BeaconType _beaconTitle;
         private int _panelIndex;
         private GameObject _beaconInstance;
 
         private void Awake()
         {
-            _beaconTitle = BeaconType.INVALID;
+            _beaconInstance = null;
             _panelIndex = -1;
 
             PanelBeacons = new BasePanelBeacon[3]
@@ -46,62 +44,92 @@ namespace Primus.Sample.ModTool.BeaconEditor.Canvas
         {
         }
 
-        private void UpdateChildrenPanels()
+        /// <summary>Updates children beacon panels' states.</summary>
+        private void OnBeaconChanged(GameObject newBeaconInstance)
         {
-            // If null, disable previously active panel.
-            if (!_beaconInstance)
+            // If beacon instance did not change
+            if (_beaconInstance == newBeaconInstance)
             {
-                _beaconTitle = BeaconType.INVALID;
-                if (0 <= _panelIndex)
-                {
-                    PanelBeacons[_panelIndex].ClearBeacon();
-                    PanelBeacons[_panelIndex].gameObject.SetActive(false);
-                }
+                return;
+            }
+
+            // If null, disable previously active panel.
+            if (!newBeaconInstance)
+            {
+                DisablePanelBeacon(_panelIndex);
                 _panelIndex = -1;
             }
-            // Get BeaconType of selected beacon.
+            // Else, disable previously active panel and enable new one.
             else
             {
-                _beaconTitle = _beaconInstance.GetComponent<BaseBeacon>().BiblionTitle;
+                // Disable previous panel.            
+                DisablePanelBeacon(_panelIndex);
+                // Enable new panel and set new panel index.
+                EnablePanelBeacon(newBeaconInstance, true);
+            }
 
-                // Convert into index in array.
-                int index;
-                switch (_beaconTitle)
+            // Save new instance
+            _beaconInstance = newBeaconInstance;
+        }
+
+        private void DisablePanelBeacon(int index)
+        {
+            if (0 <= index)
+            {
+                PanelBeacons[index].ClearBeacon();
+                PanelBeacons[index].gameObject.SetActive(false);
+            }
+        }
+
+        private void EnablePanelBeacon(GameObject beaconInstance, bool saveIndex)
+        {
+            BeaconType beaconTitle = beaconInstance.GetComponent<BaseBeacon>().BiblionTitle;
+
+            int index = TitleToIndex(beaconTitle);
+
+            if (0 <= index)
+            {
+                PanelBeacons[index].gameObject.SetActive(true);
+
+                switch (beaconTitle)
                 {
                     case BeaconType.BLUE:
-                        index = 0;
-                        ((PanelBeaconBlue)PanelBeacons[index]).Beacon = _beaconInstance.GetComponent<BeaconBlue>();
+                        ((PanelBeaconBlue)PanelBeacons[index]).Beacon = beaconInstance.GetComponent<BeaconBlue>();
                         break;
                     case BeaconType.GREEN:
-                        index = 1;
-                        ((PanelBeaconGreen)PanelBeacons[index]).Beacon = _beaconInstance.GetComponent<BeaconGreen>();
+                        ((PanelBeaconGreen)PanelBeacons[index]).Beacon = beaconInstance.GetComponent<BeaconGreen>();
                         break;
                     case BeaconType.RED:
-                        index = 2;
-                        ((PanelBeaconRed)PanelBeacons[index]).Beacon = _beaconInstance.GetComponent<BeaconRed>();
-                        break;
-                    default:
-                        index = -1;
+                        ((PanelBeaconRed)PanelBeacons[index]).Beacon = beaconInstance.GetComponent<BeaconRed>();
                         break;
                 }
 
-                // When selected beacon changes, disable previous and enable new panel.
-                if (index != _panelIndex)
+                PanelBeacons[index].UpdatePanelRotation();
+                PanelBeacons[index].UpdateFieldName();
+
+                if (saveIndex)
                 {
-                    if (0 <= _panelIndex)
-                    {
-                        PanelBeacons[_panelIndex].ClearBeacon();
-                        PanelBeacons[_panelIndex].gameObject.SetActive(false);
-                    }
-                    if (0 <= index)
-                    {
-                        PanelBeacons[index].gameObject.SetActive(true);
-                        PanelBeacons[index].UpdatePanelRotation();
-                        PanelBeacons[index].UpdateFieldName();
-                    }
                     _panelIndex = index;
                 }
             }
+        }
+
+        private int TitleToIndex(BeaconType biblionTitle)
+        {
+            int index = -1;
+            switch (biblionTitle)
+            {
+                case BeaconType.BLUE:
+                    index = 0;
+                    break;
+                case BeaconType.GREEN:
+                    index = 1;
+                    break;
+                case BeaconType.RED:
+                    index = 2;
+                    break;
+            }
+            return index;
         }
     }
 }
