@@ -12,7 +12,7 @@ namespace Primus.Sample.ModTool.BeaconEditor.IO
             BeaconEditorManager.Instance.ClearBeacons();
             foreach (var beaconState in beaconEditorState.BeaconStates)
             {
-                ParseBeacon(beaconState.Type, beaconState.Name, beaconState.Position.Vector3, beaconState.RotationAngle);
+                ParseBeacon(beaconState.Type, beaconState.Name, beaconState.Position.Vector3, beaconState.RotationAngle = 0);
             }
         }
 

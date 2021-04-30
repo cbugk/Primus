@@ -17,10 +17,6 @@ namespace Primus.Sample.ModTool.BeaconEditor.Canvas
             {
                 DropdownBeacon.AddListener(value => BeaconEditorManager.Instance.BeaconTypeDropdownSelected = DropdownBeacon.GetTitle(value));
             }
-            else
-            {
-                Debug.Log("Howww");
-            }
         }
     }
 }

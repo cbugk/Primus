@@ -44,7 +44,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
                 return (_cameraManager.IsActiveOrthographic ? _cameraManager.ActiveOrthographicSize : _cameraManager.ActiveFieldOfView * 2.0f) * 2.5f / 1080;
             }
         }
-        private MouseToWorldPosition _mouseToWorldPosition;
+        private MouseToWorldPositionManager _mouseToWorldPosition;
         // Coupled with indNeighborBeaconsInPosition().
         private List<GameObject> _neighborBeaconInstancesCache;
         // Coupled with indNeighborBeaconsInPosition().
@@ -66,7 +66,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
             _beaconEditorInput = new BeaconEditorInput();
 
             //Instantiate NonSerialized Functionalities
-            _mouseToWorldPosition = new MouseToWorldPosition();
+            _mouseToWorldPosition = new MouseToWorldPositionManager();
             if (_cameraManager != null)
             {
                 _cameraManager.ManualAwake();
@@ -105,8 +105,6 @@ namespace Primus.Sample.ModTool.BeaconEditor
             Vector2 moveCache = delta * _moveMultiplier;
             _cameraManager.Move(moveCache.x, moveCache.y);
         }
-
-
 
         private GameObject FindNearestBeaconWithinRadiusAtPosition(float radius, Vector3 position, GameObject exceptBeaconInstance = null)
         {
@@ -260,6 +258,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
         {
             IO.StateIO.Write();
         }
+
         private void LoadState()
         {
             IO.StateIO.Read("Save01.bin");
@@ -268,12 +267,11 @@ namespace Primus.Sample.ModTool.BeaconEditor
                 BeaconType type = beaconInstance.GetComponent<BaseBeacon>().BiblionTitle;
             }
         }
+
         private void ClearAndPopulateListButtonBeacon()
         {
             _canvasManager.PanelListBeacon.ScrollListBeacon.ClearAndPopulate();
         }
-
-
 
         private void ZoomCameraLinear(float value)
         {
