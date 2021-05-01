@@ -19,7 +19,7 @@ namespace Primus.ModTool.Functionality
         public (Vector3, GameObject, Vector2, GameObject) GetHit(LayerMask layerMask)
         {
             (Vector3, GameObject, Vector2, GameObject) quadruple = (_infinity3, null, _infinity2, null);
-            var resultsUI = MouseRaycastUIManager.Instance.GetGlobalRaycastUI();
+            var resultsUI = CursorUIRaycastManager.Instance.CursorUIRaycastResults;
             if (resultsUI.Length > 0)
             {
                 quadruple.Item3 = resultsUI[0].screenPosition;

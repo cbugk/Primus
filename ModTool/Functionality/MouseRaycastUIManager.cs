@@ -7,30 +7,20 @@ using Primus.Core;
 
 namespace Primus.ModTool.Functionality
 {
-    public class MouseRaycastUIManager : BaseMonoSingleton<MouseRaycastUIManager>
+    public class CursorUIRaycastManager : BaseMonoSingleton<CursorUIRaycastManager>
     {
-        GraphicRaycaster[] _graphicRaycasters;
-        PointerEventData _pointerEventData;
-        EventSystem _eventSystem;
-
-        public bool isHoveringButton;
-
-        List<RaycastResult> results;
-        protected override void Awake()
+        private GraphicRaycaster[] _graphicRaycasters;
+        private PointerEventData _pointerEventData;
+        private EventSystem _eventSystem;
+        private List<RaycastResult> _results;
+        public RaycastResult[] CursorUIRaycastResults
         {
-            base.Awake();
-            results = new List<RaycastResult>();
-        }
-
-        public RaycastResult[] GetGlobalRaycastUI()
-        {
-            results.Clear();
-            _graphicRaycasters = FindObjectsOfType<GraphicRaycaster>();
-            _eventSystem = EventSystem.current;
-            isHoveringButton = false;
-            //Check if the left Mouse button is clicked
-            if (true)
+            get
             {
+                _results.Clear();
+                _graphicRaycasters = FindObjectsOfType<GraphicRaycaster>();
+                _eventSystem = EventSystem.current;
+
                 //Set up the new Pointer Event
                 _pointerEventData = new PointerEventData(_eventSystem);
                 //Set the Pointer Event Position to that of the mouse position
@@ -47,12 +37,18 @@ namespace Primus.ModTool.Functionality
                     //For every result returned, output the name of the GameObject on the Canvas hit by the Ray
                     foreach (RaycastResult result in resultsTemp)
                     {
-                        results.Add(result);
+                        _results.Add(result);
                     }
                 }
-            }
 
-            return results.ToArray();
+
+                return _results.ToArray();
+            }
+        }
+        protected override void Awake()
+        {
+            base.Awake();
+            _results = new List<RaycastResult>();
         }
     }
 }
