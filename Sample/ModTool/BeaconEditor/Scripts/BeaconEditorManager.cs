@@ -109,6 +109,8 @@ namespace Primus.Sample.ModTool.BeaconEditor
 
             Vector2 moveCache = delta * _moveMultiplier;
             _cameraManager.Move(moveCache.x, moveCache.y);
+            _cameraManager.ActiveCamera.transform.position =
+                BackgroundQuad.Instance.Clamp(_cameraManager.ActiveCamera.transform.position);
         }
 
         private GameObject FindNearestBeaconWithinRadiusAtPosition(float radius, Vector3 position, GameObject exceptBeaconInstance = null)
@@ -238,8 +240,6 @@ namespace Primus.Sample.ModTool.BeaconEditor
 
         internal void EnlistBeaconInstance(GameObject beaconInstance)
         {
-            // All instances are children of the background to be able to shifted when importing.
-            //beaconInstance.transform.SetParent(_background.transform);
             if (beaconInstance)
             {
                 BeaconInstances.Add(beaconInstance);
