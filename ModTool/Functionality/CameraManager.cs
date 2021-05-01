@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Primus.ModTool.Core;
 
@@ -7,109 +8,184 @@ namespace Primus.ModTool.Functionality
     [System.Serializable]
     public class CameraManager : IFunctionality
     {
-        // Always the _cameras[0] is active.
-        [SerializeField] private Camera[] _cameras;
-        public Camera ActiveCamera { get => _cameras[0]; }
-        public bool IsActiveOrthographic { get => _cameras[0].orthographic; }
-        public float ActiveOrthographicSize { get => _cameras[0].orthographicSize; }
-        public float ActiveFieldOfView { get => _cameras[0].fieldOfView; }
-        private AudioListener[] _audioListeners;
-        private Camera _temporaryCamera;
-        private AudioListener _temporaryAudioListener;
-
-
-        public CameraManager(Camera[] cameras)
+        [SerializeField] private List<Camera> _cameras;
+        private int _indexActive;
+        public int IndexActive { get => _indexActive; set => SwitchTo(value); }
+        public Camera ActiveCamera
         {
-            _cameras = cameras;
+            get
+            {
+                if (_indexActive == -1) { return null; }
+                else { return _cameras[_indexActive]; }
+            }
+        }
+        public bool IsActiveOrthographic { get => _cameras[_indexActive].orthographic; }
+        public float ActiveOrthographicSize { get => _cameras[_indexActive].orthographicSize; }
+        public float ActiveFieldOfView { get => _cameras[_indexActive].fieldOfView; }
+        private List<AudioListener> _audioListeners;
+
+
+        public CameraManager()
+        {
+            if (_cameras == null)
+            {
+                _cameras = new List<Camera>();
+            }
+
+            _audioListeners = new List<AudioListener>();
         }
 
         public void ManualAwake()
         {
-            if (_cameras == null || _cameras.Length == 0)
+            if (0 < _cameras.Count)
             {
-                throw new System.Exception("No camera found while initializing.");
-            }
-            if (_cameras[0] == null)
-            {
-                throw new System.Exception("Active camera null while initializing.");
-            }
-
-            _audioListeners = new AudioListener[_cameras.Length];
-            _audioListeners[0] = _cameras[0].GetComponent<AudioListener>();
-
-            _audioListeners[0].enabled = true;
-            _cameras[0].gameObject.SetActive(true);
-
-            for (int index = 1; index < _cameras.Length; index++)
-            {
-                if (_cameras[index] == null)
+                _indexActive = 0;
+                for (int index = 0; index < _cameras.Count; index++)
                 {
-                    throw new System.Exception("Null camera found while initializing.");
-                }
-                _audioListeners[index] = _cameras[index].GetComponent<AudioListener>();
 
-                _audioListeners[index].enabled = false;
-                _cameras[index].gameObject.SetActive(false);
+                    if (_cameras[index] == null)
+                    {
+                        throw new System.ArgumentNullException("Cannot add null Camera.");
+                    }
+
+                    AudioListener audioListener = _cameras[index].GetComponent<AudioListener>();
+                    if (audioListener == null)
+                    {
+                        throw new System.ArgumentNullException("Cannot add Camera with null AudioListener.");
+                    }
+                    _audioListeners.Add(audioListener);
+
+                    if (index == _indexActive)
+                    {
+                        _audioListeners[index].enabled = true;
+                        _cameras[index].gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        _audioListeners[index].enabled = false;
+                        _cameras[index].gameObject.SetActive(false);
+                    }
+                }
             }
+            else
+            {
+                _indexActive = -1;
+            }
+
         }
 
-        public void SwitchTo(int cameraIndex)
+        public void Add(Camera camera)
         {
-            if (cameraIndex == 0) return;
-            if (cameraIndex < 1 || _cameras.Length <= cameraIndex)
+            if (camera == null)
+            {
+                throw new System.ArgumentNullException("Cannot add null Camera.");
+            }
+
+            AudioListener audioListener = camera.GetComponent<AudioListener>();
+            if (audioListener == null)
+            {
+                throw new System.ArgumentNullException("Cannot add Camera with null AudioListener.");
+            }
+
+            // Unless list was empty, IndexActive stays the same.
+            if (_cameras.Count == 0)
+            {
+                _indexActive = 0;
+            }
+
+            _audioListeners.Add(audioListener);
+            _cameras.Add(camera);
+
+            _audioListeners[_audioListeners.Count].enabled = false;
+            _cameras[_audioListeners.Count].gameObject.SetActive(false);
+        }
+
+        public void RemoveAt(int index)
+        {
+            if (ValidateIndex(index))
+            {
+                // Keep reference to ActiveCamera.
+                Camera temp = ActiveCamera;
+
+                // Remove specified camera.
+                _cameras.RemoveAt(index);
+                _audioListeners.RemoveAt(index);
+
+                // Get current index of ActiveCamera.
+                _indexActive = FindIndex(temp);
+            }
+            else
             {
                 throw new IndexOutOfRangeException("Invalid camera index.");
             }
+        }
 
-            _temporaryCamera = _cameras[0];
-            _temporaryAudioListener = _audioListeners[0];
-
-            _cameras[0] = _cameras[cameraIndex];
-            _audioListeners[0] = _audioListeners[cameraIndex];
-
-            _cameras[cameraIndex] = _temporaryCamera;
-            _audioListeners[cameraIndex] = _temporaryAudioListener;
-
-            _cameras[cameraIndex].gameObject.SetActive(false);
-            _audioListeners[cameraIndex].enabled = false;
-
-            _cameras[0].gameObject.SetActive(true);
-            _audioListeners[0].enabled = true;
+        public int FindIndex(Camera camera)
+        {
+            return _cameras.FindIndex(camera.Equals);
         }
 
         public void Move(float horizontal, float vertical)
         {
-            _cameras[0].transform.Translate((_cameras[0].transform.right * horizontal + _cameras[0].transform.up * vertical), Space.World);
+            _cameras[_indexActive].transform.Translate((_cameras[_indexActive].transform.right * horizontal + _cameras[_indexActive].transform.up * vertical), Space.World);
         }
 
         public void MoveForward(float distance)
         {
-            _cameras[0].transform.Translate(_cameras[0].transform.forward * distance, Space.World);
+            _cameras[_indexActive].transform.Translate(_cameras[_indexActive].transform.forward * distance, Space.World);
         }
 
         public void ZoomExponentialPerspective(float scaleFactor)
         {
             // divide-equal because as fieldOfView increases, more area is visible on screen.
-            _cameras[0].fieldOfView /= scaleFactor;
+            _cameras[_indexActive].fieldOfView /= scaleFactor;
         }
 
         public void ZoomExponentialOrthographic(float scaleFactor)
         {
             // divide-equal because as fieldOfView increases, more area is visible on screen.
-            _cameras[0].orthographicSize /= scaleFactor;
+            _cameras[_indexActive].orthographicSize /= scaleFactor;
         }
 
         public void ZoomLinearPerspective(float linearFactor, float clampMin, float clampMax)
         {
-            _cameras[0].fieldOfView -= linearFactor;
-            _cameras[0].fieldOfView = Mathf.Clamp(_cameras[0].fieldOfView, clampMin, clampMax);
+            _cameras[_indexActive].fieldOfView -= linearFactor;
+            _cameras[_indexActive].fieldOfView = Mathf.Clamp(_cameras[_indexActive].fieldOfView, clampMin, clampMax);
         }
 
         public void ZoomLinearOrthographic(float linearFactor, float clampMin, float clampMax)
         {
-            _cameras[0].orthographicSize -= linearFactor;
-            _cameras[0].orthographicSize = Mathf.Clamp(_cameras[0].orthographicSize, clampMin, clampMax);
+            _cameras[_indexActive].orthographicSize -= linearFactor;
+            _cameras[_indexActive].orthographicSize = Mathf.Clamp(_cameras[_indexActive].orthographicSize, clampMin, clampMax);
         }
 
+        private bool ValidateIndex(int index)
+        {
+            if (index < 0 || _cameras.Count <= index)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        private void SwitchTo(int index)
+        {
+            if (index == _indexActive) return;
+            if (ValidateIndex(index))
+            {
+
+                _cameras[_indexActive].gameObject.SetActive(false);
+                _audioListeners[_indexActive].enabled = false;
+
+                _cameras[index].gameObject.SetActive(true);
+                _audioListeners[index].enabled = true;
+
+                _indexActive = index;
+            }
+            else
+            {
+                throw new IndexOutOfRangeException("Invalid camera index.");
+            }
+        }
     }
 }

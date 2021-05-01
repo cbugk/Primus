@@ -6,20 +6,26 @@ using Primus.Core;
 namespace Primus.ModTool.Functionality
 {
     [System.Serializable]
-    public class CursorManager :
-        BaseMonoSingleton<CursorManager>, IFunctionality
+    public class CursorManager : IFunctionality
     {
+        public CursorUIRaycastManager _cursorUIRaycastManager { get; private set; }
         [field: SerializeField] public Camera ActiveCamera { get; set; }
         private Ray _ray;
         private RaycastHit _hit;
+        private Vector3 _infinity3;
+        private Vector2 _infinity2;
 
-        private Vector3 _infinity3 = Vector3.one * Mathf.Infinity;
-        private Vector2 _infinity2 = Vector2.one * Mathf.Infinity;
+        public CursorManager()
+        {
+            _infinity3 = Vector3.one * Mathf.Infinity;
+            _infinity2 = Vector2.one * Mathf.Infinity;
+            _cursorUIRaycastManager = new CursorUIRaycastManager();
+        }
 
         public (Vector3, GameObject, Vector2, GameObject) GetHit(LayerMask layerMask)
         {
             (Vector3, GameObject, Vector2, GameObject) quadruple = (_infinity3, null, _infinity2, null);
-            var resultsUI = CursorUIRaycastManager.Instance.CursorUIRaycastResults;
+            var resultsUI = _cursorUIRaycastManager.CursorUIRaycastResults;
             if (resultsUI.Length > 0)
             {
                 quadruple.Item3 = resultsUI[0].screenPosition;

@@ -16,6 +16,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
     {
         // Public, Serialized, and Internal //
         public BeaconBibliotheca Bibliotheca;
+        private CursorManager _cursorManager { get; set; }
         [SerializeField] private CanvasManager _canvasManager;
         [SerializeField] private CameraManager _cameraManager;
         // Mouse-wheel returns +-120f so 0.01f is a good ZoomMultiplier.
@@ -44,7 +45,6 @@ namespace Primus.Sample.ModTool.BeaconEditor
                 return (_cameraManager.IsActiveOrthographic ? _cameraManager.ActiveOrthographicSize : _cameraManager.ActiveFieldOfView * 2.0f) * 2.5f / 1080;
             }
         }
-        private CursorManager _cursorManager;
         // Coupled with indNeighborBeaconsInPosition().
         private List<GameObject> _neighborBeaconInstancesCache;
         // Coupled with indNeighborBeaconsInPosition().
@@ -53,9 +53,9 @@ namespace Primus.Sample.ModTool.BeaconEditor
         private GameObject _beaconInstanceCache;
         private GameObject _selectedBeaconInstance = null;
 
-        Vector3 _selectionOffsetCache;
-        [Header("Layers")] [SerializeField] LayerMask _layerBackground;
-        [SerializeField] LayerMask _layerBeacon;
+        private Vector3 _selectionOffsetCache;
+        [Header("Layers")] [SerializeField] private LayerMask _layerBackground;
+        [SerializeField] private LayerMask _layerBeacon;
 
         protected override void Awake()
         {
@@ -70,16 +70,16 @@ namespace Primus.Sample.ModTool.BeaconEditor
             _beaconEditorInput = new BeaconEditorInput();
 
             //Instantiate NonSerialized Functionalities
-            _cursorManager = CursorManager.Instance;
+            _cursorManager = new CursorManager();
+        }
+
+        private void Start()
+        {
             if (_cameraManager != null)
             {
                 _cameraManager.ManualAwake();
                 _cursorManager.ActiveCamera = _cameraManager.ActiveCamera;
             }
-        }
-
-        private void Start()
-        {
             if (Bibliotheca == null || _canvasManager == null)
             {
                 throw new System.MissingMemberException();
@@ -95,8 +95,8 @@ namespace Primus.Sample.ModTool.BeaconEditor
 
         private void SwitchCamera()
         {
-            // Always switches to other than active camera
-            _cameraManager.SwitchTo(1);
+            // Switch camera index from 0 to 1 or vice-versa.
+            _cameraManager.IndexActive = _cameraManager.IndexActive == 0 ? 1 : 0;
             _cursorManager.ActiveCamera = _cameraManager.ActiveCamera;
         }
 
