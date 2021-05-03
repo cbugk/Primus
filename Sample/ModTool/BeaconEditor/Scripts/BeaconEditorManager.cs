@@ -16,6 +16,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
     {
         // Public, Serialized, and Internal //
         public BeaconBibliotheca Bibliotheca;
+        [SerializeField] private BackgroundQuad _backgroundQuad;
         private CursorManager _cursorManager { get; set; }
         [SerializeField] private CanvasManager _canvasManager;
         [SerializeField] private CameraManager _cameraManager;
@@ -25,7 +26,6 @@ namespace Primus.Sample.ModTool.BeaconEditor
         // Set just bigger than half the radius of cylinder prefab.
         [SerializeField] private float _neighborBeaconDistanceLowerLimit = 25.0f;
         [SerializeField] private float _neighborBeaconDistanceEpsilon = 0.01f;
-        [SerializeField] private GameObject _background;
         public BeaconType BeaconTypeDropdownSelected { get; set; }
         // List of all the beacons in scene.
         [SerializeField] internal List<GameObject> BeaconInstances;
@@ -77,10 +77,9 @@ namespace Primus.Sample.ModTool.BeaconEditor
         {
             if (_cameraManager != null)
             {
-                _cameraManager.ManualAwake();
                 _cursorManager.ActiveCamera = _cameraManager.ActiveCamera;
             }
-            if (Bibliotheca == null || _canvasManager == null)
+            if (Bibliotheca == null || _canvasManager == null || _backgroundQuad == null)
             {
                 throw new System.MissingMemberException();
             }
@@ -110,7 +109,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
             Vector2 moveCache = delta * _moveMultiplier;
             _cameraManager.Move(moveCache.x, moveCache.y);
             _cameraManager.ActiveCamera.transform.position =
-                BackgroundQuad.Instance.Clamp(_cameraManager.ActiveCamera.transform.position);
+                _backgroundQuad.Clamp(_cameraManager.ActiveCamera.transform.position);
         }
 
         private GameObject FindNearestBeaconWithinRadiusAtPosition(float radius, Vector3 position, GameObject exceptBeaconInstance = null)

@@ -6,7 +6,7 @@ using Primus.ModTool.Core;
 namespace Primus.ModTool.Functionality
 {
     [System.Serializable]
-    public class CameraManager : IFunctionality
+    public class CameraManager : MonoBehaviour, IFunctionality
     {
         [SerializeField] private List<Camera> _cameras;
         private int _indexActive;
@@ -19,24 +19,23 @@ namespace Primus.ModTool.Functionality
                 else { return _cameras[_indexActive]; }
             }
         }
+        public Camera[] Cameras { get => _cameras.ToArray(); }
+        public bool IsPaused { get; private set; }
         public bool IsActiveOrthographic { get => _cameras[_indexActive].orthographic; }
         public float ActiveOrthographicSize { get => _cameras[_indexActive].orthographicSize; }
         public float ActiveFieldOfView { get => _cameras[_indexActive].fieldOfView; }
         private List<AudioListener> _audioListeners;
 
-
-        public CameraManager()
+        private void Awake()
         {
-            if (_cameras == null)
+            if (_cameras == null || _cameras.Count == 0)
             {
-                _cameras = new List<Camera>();
+                Debug.LogError($"{name}: At least 1 Camera must be provided.");
+                Destroy(this);
             }
 
             _audioListeners = new List<AudioListener>();
-        }
 
-        public void ManualAwake()
-        {
             if (0 < _cameras.Count)
             {
                 _indexActive = 0;
@@ -57,8 +56,8 @@ namespace Primus.ModTool.Functionality
 
                     if (index == _indexActive)
                     {
-                        _audioListeners[index].enabled = true;
                         _cameras[index].gameObject.SetActive(true);
+                        _audioListeners[index].enabled = true;
                     }
                     else
                     {
@@ -71,7 +70,6 @@ namespace Primus.ModTool.Functionality
             {
                 _indexActive = -1;
             }
-
         }
 
         public void Add(Camera camera)
@@ -161,7 +159,7 @@ namespace Primus.ModTool.Functionality
 
         private bool ValidateIndex(int index)
         {
-            if (index < 0 || _cameras.Count <= index)
+            if (0 <= index || index < _cameras.Count)
             {
                 return true;
             }
@@ -174,8 +172,8 @@ namespace Primus.ModTool.Functionality
             if (ValidateIndex(index))
             {
 
-                _cameras[_indexActive].gameObject.SetActive(false);
                 _audioListeners[_indexActive].enabled = false;
+                _cameras[_indexActive].gameObject.SetActive(false);
 
                 _cameras[index].gameObject.SetActive(true);
                 _audioListeners[index].enabled = true;

@@ -4,7 +4,7 @@ using Primus.Core;
 namespace Primus.Sample.ModTool.BeaconEditor
 {
     ///<summary>Assumes a Quad facing upwards, a rotation of (90,0,0).</summary>
-    public class BackgroundQuad : BaseMonoSingleton<BackgroundQuad>
+    public class BackgroundQuad : MonoBehaviour
     {
         private float PositionLeft
         {
@@ -26,8 +26,8 @@ namespace Primus.Sample.ModTool.BeaconEditor
         ///<summary>Clamps provided position into bacground rectangle's area.</summary>
         public Vector3 Clamp(Vector3 position)
         {
-            position.x = Mathf.Clamp(position.x, PositionRight, PositionLeft);
-            position.z = Mathf.Clamp(position.z, PositionForward, PositionBackward);
+            position.x = Mathf.Clamp(position.x, PositionLeft, PositionRight);
+            position.z = Mathf.Clamp(position.z, PositionBackward, PositionForward);
             return position;
         }
     }
