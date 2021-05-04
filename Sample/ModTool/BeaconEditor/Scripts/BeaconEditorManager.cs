@@ -77,7 +77,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
         {
             if (_cameraManager != null)
             {
-                _cursorManager.ActiveCamera = _cameraManager.ActiveCamera;
+                // _cursorManager.ActiveCamera = _cameraManager.ActiveCamera;
             }
             if (Bibliotheca == null || _canvasManager == null || _backgroundQuad == null)
             {
@@ -96,7 +96,7 @@ namespace Primus.Sample.ModTool.BeaconEditor
         {
             // Switch camera index from 0 to 1 or vice-versa.
             _cameraManager.IndexActive = _cameraManager.IndexActive == 0 ? 1 : 0;
-            _cursorManager.ActiveCamera = _cameraManager.ActiveCamera;
+            //_cursorManager.ActiveCamera = _cameraManager.ActiveCamera;
         }
 
         private void MoveCamera(Vector2 delta)

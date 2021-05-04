@@ -72,6 +72,12 @@ namespace Primus.ModTool.Functionality
             }
         }
 
+        private void Update()
+        {
+            _cameras.Clear();
+            _cameras.Add(Camera.main);
+        }
+
         public void Add(Camera camera)
         {
             if (camera == null)

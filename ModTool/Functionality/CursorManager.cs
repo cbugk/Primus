@@ -9,7 +9,7 @@ namespace Primus.ModTool.Functionality
     public class CursorManager : MonoBehaviour, IFunctionality
     {
         [field: SerializeField] public CursorUIRaycastManager CursorUIRaycastManager { get; private set; }
-        public Camera ActiveCamera { get; set; }
+//        public Camera ActiveCamera { get; set; }
         private Ray _ray;
         private RaycastHit _hit;
         private readonly Vector3 _infinity3 = Vector3.one * Mathf.Infinity;
@@ -23,6 +23,7 @@ namespace Primus.ModTool.Functionality
             }
         }
 
+
         public (Vector3, GameObject, Vector2, GameObject) GetHit(LayerMask layerMask)
         {
             (Vector3, GameObject, Vector2, GameObject) quadruple = (_infinity3, null, _infinity2, null);
@@ -33,7 +34,7 @@ namespace Primus.ModTool.Functionality
                 quadruple.Item4 = resultsUI[0].gameObject;
             }
 
-            _ray = ActiveCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+            _ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
             if (Physics.Raycast(_ray, out _hit, float.MaxValue, layerMask))
             {
                 quadruple.Item1 = _hit.point;

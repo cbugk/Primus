@@ -4,7 +4,7 @@ namespace Primus.Core
 {
     public abstract class BaseMonoSingleton<T> : MonoBehaviour where T : Component
     {
-        [SerializeField] private static T _instance;
+        private static T _instance;
 
         public static T Instance
         {
