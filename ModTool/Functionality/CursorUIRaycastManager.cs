@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using Primus.ModTool.Core;
 
 namespace Primus.ModTool.Functionality
 {
-    public class CursorUIRaycastManager
+    public class CursorUIRaycastManager : MonoBehaviour, IFunctionality
     {
         private List<RaycastResult> _results;
         private GraphicRaycaster[] _graphicRaycasters;
@@ -21,7 +23,7 @@ namespace Primus.ModTool.Functionality
             }
         }
 
-        public CursorUIRaycastManager()
+        public void Awake()
         {
             _results = new List<RaycastResult>();
         }
