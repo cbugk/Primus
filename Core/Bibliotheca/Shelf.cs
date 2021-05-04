@@ -14,9 +14,9 @@ namespace Primus.Core.Bibliotheca
         [field: SerializeField] public TBiblionTitle Title { get; private set; }
         [field: SerializeField] public BaseBiblion<TBiblionTitle> Biblion { get; private set; }
 
-        [field: SerializeField]
-        [field: Range(1, 64)]
-        public int BatchSize { get; private set; }
+        [field: SerializeField] public int InitialBatchSize { get; private set; }
+        [field: SerializeField] public bool CanAddExtraBatch { get; private set; }
+        [field: SerializeField] public int BatchSize { get; private set; }
 
         public void PutBiblion(BaseBiblion<TBiblionTitle> biblion)
         {

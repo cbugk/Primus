@@ -24,10 +24,13 @@ namespace Primus.Core.Bibliotheca
                 catch (InvalidOperationException)
                 {
                     var respectiveShelf = Inventory[shelfIndex];
-                    var batchSize = respectiveShelf.BatchSize;
-                    for (var batchIndex = 0; batchIndex < batchSize; batchIndex++)
-                        respectiveShelf.PutBiblion(ManufactureBiblion(shelfIndex));
-                    return respectiveShelf.GetBiblion().gameObject;
+                    if (respectiveShelf.CanAddExtraBatch)
+                    {
+                        var batchSize = respectiveShelf.BatchSize;
+                        for (var batchIndex = 0; batchIndex < batchSize; batchIndex++)
+                            respectiveShelf.PutBiblion(ManufactureBiblion(shelfIndex));
+                        return respectiveShelf.GetBiblion().gameObject;
+                    }
                 }
 
             return null;
@@ -46,6 +49,7 @@ namespace Primus.Core.Bibliotheca
 
             // Unless inventory is ordered illegally, _typesInInventory is set
             ValidateInventory();
+            AddInitialBatchToInventory();
         }
 
         private BaseBiblion<TBiblionTitle> ManufactureBiblion(int shelfIndex)
@@ -118,6 +122,17 @@ namespace Primus.Core.Bibliotheca
                             $"[{name}] Bibliotheca inventory must be populated in ascending order. Index: {shelfIndex}");
                     }
                 }
+            }
+        }
+
+        private void AddInitialBatchToInventory()
+        {
+            for (int shelfIndex = 0; shelfIndex < Inventory.Length; shelfIndex++)
+            {
+                var respectiveShelf = Inventory[shelfIndex];
+                var initialBatchSize = respectiveShelf.InitialBatchSize;
+                for (var batchIndex = 0; batchIndex < initialBatchSize; batchIndex++)
+                    respectiveShelf.PutBiblion(ManufactureBiblion(shelfIndex));
             }
         }
     }
