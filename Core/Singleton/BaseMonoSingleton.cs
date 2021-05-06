@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
 
-namespace Primus.Core
+namespace Primus.Core.Singleton
 {
-    public abstract class BaseMonoSingleton<T> : MonoBehaviour where T : Component
+    public abstract class BaseMonoSingleton<T>
+        : MonoBehaviour
+        where T : MonoBehaviour
     {
         private static T _instance;
 
@@ -33,7 +35,7 @@ namespace Primus.Core
             }
             else
             {
-                Destroy(gameObject);
+                //Destroy(gameObject);
             }
         }
     }

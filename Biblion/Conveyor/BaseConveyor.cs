@@ -111,9 +111,9 @@ namespace Primus.Biblion.Conveyor
 
 
 
-        private void Awake()
+        private void Start()
         {
-            SetCaches();
+            SetPartReferences();
             OnDimensionChanged();
         }
 
@@ -221,30 +221,30 @@ namespace Primus.Biblion.Conveyor
 
         // HEREAFTER functions for setting part caches.
         ///<summary>Sets caches for belts and rollers.</summary>
-        private void SetCaches()
+        private void SetPartReferences()
         {
-            SetCachesBeltPart(_beltAboveLeft, out _beltBodyAboveLeft, out _beltRendererAboveLeft,
+            SetReferencesBeltPart(_beltAboveLeft, out _beltBodyAboveLeft, out _beltRendererAboveLeft,
                 out _beltTransformAboveLeft);
-            SetCachesBeltPart(_beltAboveUp, out _beltBodyAboveUp, out _beltRendererAboveUp, out _beltTransformAboveUp);
-            SetCachesBeltPart(_beltAboveRight, out _beltBodyAboveRight, out _beltRendererAboveRight,
+            SetReferencesBeltPart(_beltAboveUp, out _beltBodyAboveUp, out _beltRendererAboveUp, out _beltTransformAboveUp);
+            SetReferencesBeltPart(_beltAboveRight, out _beltBodyAboveRight, out _beltRendererAboveRight,
                 out _beltTransformAboveRight);
 
             if (_doCreateBeltBelow)
             {
-                SetCachesBeltPart(_beltBelowLeft, out _beltBodyBelowLeft, out _beltRendererBelowLeft,
+                SetReferencesBeltPart(_beltBelowLeft, out _beltBodyBelowLeft, out _beltRendererBelowLeft,
                     out _beltTransformBelowLeft);
-                SetCachesBeltPart(_beltBelowUp, out _beltBodyBelowUp, out _beltRendererBelowUp, out _beltTransformBelowUp);
-                SetCachesBeltPart(_beltBelowRight, out _beltBodyBelowRight, out _beltRendererBelowRight,
+                SetReferencesBeltPart(_beltBelowUp, out _beltBodyBelowUp, out _beltRendererBelowUp, out _beltTransformBelowUp);
+                SetReferencesBeltPart(_beltBelowRight, out _beltBodyBelowRight, out _beltRendererBelowRight,
                     out _beltTransformBelowRight);
             }
 
-            SetCachesRoller(_rollerFront, out _rollerBodyFront, out _rollerRendererFront, out _rollerTransformFront);
+            SetReferencesRoller(_rollerFront, out _rollerBodyFront, out _rollerRendererFront, out _rollerTransformFront);
 
-            SetCachesRoller(_rollerHind, out _rollerBodyHind, out _rollerRendererHind, out _rollerTransformHind);
+            SetReferencesRoller(_rollerHind, out _rollerBodyHind, out _rollerRendererHind, out _rollerTransformHind);
         }
 
         ///<summary>Sets caches for a belt part.</summary>
-        private void SetCachesBeltPart(in GameObject beltPart, out Rigidbody beltBody, out Renderer beltRenderer,
+        private void SetReferencesBeltPart(in GameObject beltPart, out Rigidbody beltBody, out Renderer beltRenderer,
             out Transform beltTransform)
         {
             beltBody = beltPart.GetComponent<Rigidbody>();
@@ -255,7 +255,7 @@ namespace Primus.Biblion.Conveyor
             beltTransform = beltPart.transform;
         }
         ///<summary>Sets caches for a roller.</summary>
-        private void SetCachesRoller(in GameObject roller, out Rigidbody rollerBody, out Renderer rollerRenderer,
+        private void SetReferencesRoller(in GameObject roller, out Rigidbody rollerBody, out Renderer rollerRenderer,
             out Transform rollerTransform)
         {
             rollerBody = roller.GetComponent<Rigidbody>();
@@ -264,9 +264,7 @@ namespace Primus.Biblion.Conveyor
             rollerRenderer = roller.GetComponent<Renderer>();
 
             rollerTransform = roller.transform;
-
             rollerTransform.rotation = transform.rotation;
-
             // Make roller's y direction look transform.right
             rollerTransform.localEulerAngles = new Vector3(0, 0, -90);
         }
@@ -286,19 +284,15 @@ namespace Primus.Biblion.Conveyor
                 UpdateStateBelt(BeltPartType.BELOW_RIGHT, _beltRendererBelowRight, _beltTransformBelowRight);
             }
 
-            UpdateStateRoller(true, _rollerRendererFront, _rollerTransformFront);
+            UpdateStateRoller(RollerType.FRONT, _rollerRendererFront, _rollerTransformFront);
 
-            UpdateStateRoller(false, _rollerRendererHind, _rollerTransformHind);
+            UpdateStateRoller(RollerType.HIND, _rollerRendererHind, _rollerTransformHind);
         }
 
         ///<summary>Updates position, rotation, local scale, and material of belt.</summary>
         private void UpdateStateBelt(BeltPartType partType, Renderer beltRenderer, Transform beltTransform)
         {
-            if (beltRenderer == null || beltTransform == null)
-            {
-                return;
-                ;
-            }
+            if (beltRenderer == null || beltTransform == null) { return; }
 
             switch (partType)
             {
@@ -384,18 +378,33 @@ namespace Primus.Biblion.Conveyor
         }
 
         ///<summary>Updates position, local scale, and material of roller.</summary>
-        private void UpdateStateRoller(bool isFront, Renderer rollerRenderer, Transform rollerTransform)
+        private void UpdateStateRoller(RollerType rollerType, Renderer rollerRenderer, Transform rollerTransform)
         {
-            if (rollerRenderer == null || rollerTransform == null) Debug.Log("Houston!!!!!");
-            if (rollerRenderer == null || rollerTransform == null) return;
-            partTransformLocalPositionCache.x = 0.0f;
-            partTransformLocalPositionCache.y = 0.0f;
-            partTransformLocalPositionCache.z = (isFront ? 1.0f : -1.0f) * (_length - _diameter) / 2.0f;
-            rollerTransform.localPosition = partTransformLocalPositionCache;
-            partTransformLocalScaleCache.x = _diameter;
-            partTransformLocalScaleCache.y = _multiplierRollerWidth * (_width / 2.0f);
-            partTransformLocalScaleCache.z = _diameter;
-            rollerTransform.localScale = partTransformLocalScaleCache;
+            if (rollerRenderer == null || rollerTransform == null) { return; }
+
+            float positionDotZ = Mathf.Infinity;
+
+            switch (rollerType)
+            {
+                case RollerType.FRONT:
+                    positionDotZ = 1.0f;
+                    break;
+                case RollerType.HIND:
+                    positionDotZ = -1.0f;
+                    break;
+            }
+
+            if (!float.IsInfinity(positionDotZ))
+            {
+                partTransformLocalPositionCache.x = 0.0f;
+                partTransformLocalPositionCache.y = 0.0f;
+                partTransformLocalPositionCache.z = positionDotZ * (_length - _diameter) / 2.0f;
+                rollerTransform.localPosition = partTransformLocalPositionCache;
+                partTransformLocalScaleCache.x = _diameter;
+                partTransformLocalScaleCache.y = _multiplierRollerWidth * (_width / 2.0f);
+                partTransformLocalScaleCache.z = _diameter;
+                rollerTransform.localScale = partTransformLocalScaleCache;
+            }
 
             if (!rollerRenderer.sharedMaterial) rollerRenderer.sharedMaterial = _materialRoller;
         }
@@ -409,6 +418,13 @@ namespace Primus.Biblion.Conveyor
             BELOW_LEFT = 4,
             BELOW_MIDDLE = 5,
             BELOW_RIGHT = 6
+        }
+
+        public enum RollerType
+        {
+            INVALID = 0,
+            FRONT = 1,
+            HIND = 2
         }
     }
 }
