@@ -4,9 +4,9 @@ using UnityEngine.UI;
 using TMPro;
 using Primus.Toolbox.Beacon;
 
-namespace Primus.Toolbox.UI
+namespace Primus.Toolbox.View
 {
-    public abstract class BasePnlBcn<TCatalogBeacon>
+    public abstract class BasePanelBeacon<TCatalogBeacon>
         : MonoBehaviour
         where TCatalogBeacon : Enum
     {

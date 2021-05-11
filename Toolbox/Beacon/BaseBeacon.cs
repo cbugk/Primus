@@ -8,13 +8,15 @@ namespace Primus.Toolbox.Beacon
         : BaseBiblion<TCatalogBeacon>
         where TCatalogBeacon : Enum
     {
+        [field: SerializeField] public float Radius { get; set; }
+
+        /// <summary>Negative of RotationAngle, clock-wise.</summary>
         private float _rotationAngle;
+
+        /// <summary>Cartesian angle on x-z plane in degrees (counter-clockwise, zero at x-positive).</summary>
         public float RotationAngle
         {
-            get
-            {
-                return -_rotationAngle;
-            }
+            get => -_rotationAngle;
             set
             {
                 // Degrees in modulus 360.

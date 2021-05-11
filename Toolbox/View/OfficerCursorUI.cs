@@ -3,11 +3,11 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
-using Primus.Toolbox.Scene;
+using Primus.Toolbox.Service;
 
-namespace Primus.Toolbox.UI
+namespace Primus.Toolbox.View
 {
-    public class MgrCursorUI : MonoBehaviour
+    public class OfficerCursorUI : MonoBehaviour
     {
         private List<RaycastResult> _results;
         private GraphicRaycaster[] _graphicRaycasters;

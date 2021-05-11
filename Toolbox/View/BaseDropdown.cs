@@ -3,9 +3,9 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace Primus.Toolbox.UI
+namespace Primus.Toolbox.View
 {
-    public class BaseMgrDropdown<TBiblionTitle> : MonoBehaviour where TBiblionTitle : System.Enum
+    public class BaseDropdown<TBiblionTitle> : MonoBehaviour where TBiblionTitle : System.Enum
     {
         public int Value { get => _dropdown.value; }
         protected Dropdown _dropdown;
